@@ -1,0 +1,30 @@
+services:
+    okvpn_mq_insight.provider_dbal:
+        class: Okvpn\Bundle\MQInsightBundle\Model\DbalQueueStatProvider
+        arguments: ['@doctrine.orm.default_entity_manager']
+        tags:
+            - { name: okvpn.mq_stat_provider, driver: dbal }
+
+    okvpn_mq_insight.debug_message_producer:
+        class: Okvpn\Bundle\MQInsightBundle\Client\DebugMessageProducer
+        decorates: oro_message_queue.client.message_producer
+        arguments:
+            - '@okvpn_mq_insight.debug_message_producer.inner'
+
+    okvpn_redis_queue.listener.flush_message:
+        class: Okvpn\Bundle\MQInsightBundle\EventListener\MQStatCollectorListener
+        arguments:
+            - '@doctrine.orm.default_entity_manager'
+            - '@okvpn_mq_insight.debug_message_producer'
+        tags:
+            - { name: kernel.event_listener, event: kernel.terminate, method: onKernelTerminate }
+            - { name: kernel.event_listener, event: console.terminate, method: onConsoleTerminate }
+
+    okvpn_redis_queue.stat_extension:
+        class: Okvpn\Bundle\MQInsightBundle\Extension\MQStatExtension
+        arguments:
+            - '@doctrine.orm.default_entity_manager'
+            - '@okvpn_mq_insight.debug_message_producer'
+            - '@okvpn_mq_insight.provider_dbal'
+        tags:
+            - { name: 'oro_message_queue.consumption.extension', priority: 10 }

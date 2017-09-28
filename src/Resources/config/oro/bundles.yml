@@ -1,0 +1,2 @@
+bundles:
+    - { name: Okvpn\Bundle\MQInsightBundle\OkvpnMQInsightBundle, priority: 0 }
