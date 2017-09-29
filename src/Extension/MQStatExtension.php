@@ -5,17 +5,20 @@ namespace Okvpn\Bundle\MQInsightBundle\Extension;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManagerInterface;
 use Okvpn\Bundle\MQInsightBundle\Client\DebugProducerInterface;
-use Okvpn\Bundle\MQInsightBundle\Model\QueueStatProviderInterface;
+use Okvpn\Bundle\MQInsightBundle\Command\StatRetrieveCommand;
+use Okvpn\Bundle\MQInsightBundle\Manager\ProcessManager;
 use Oro\Component\MessageQueue\Client\Config;
 use Oro\Component\MessageQueue\Consumption\AbstractExtension;
 use Oro\Component\MessageQueue\Consumption\Context;
 use Oro\Component\MessageQueue\Consumption\MessageProcessorInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Process\PhpExecutableFinder;
+use Symfony\Component\Process\Process;
+use Symfony\Component\Process\ProcessBuilder;
 
 class MQStatExtension extends AbstractExtension
 {
-    const PROCESSOR_STAT_SYNC = 15; // 1 min;
-
-    const COUNT_STAT_SYNC = 15; // 30 sec;
+    const POLLING_INTERVAL = 180; // 3 min;
 
     /** @var array */
     protected $stats = [];
@@ -24,34 +27,21 @@ class MQStatExtension extends AbstractExtension
     protected $start;
 
     /** @var int */
-    protected $lastSyncProcessorStat;
+    protected $lastSyncProcessorStat = 0;
 
-    /** @var int */
-    protected $lastSyncCountStat;
 
-    /** @var EntityManagerInterface */
-    protected $entityManager;
-
-    /** @var DebugProducerInterface */
-    protected $debugProducer;
-
-    /** @var QueueStatProviderInterface */
-    protected $statProvider;
+    /** @var ContainerInterface */
+    protected $container;
 
     /** @var int */
     protected $processedCount = 0;
 
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        DebugProducerInterface $debugProducer,
-        QueueStatProviderInterface $statProvider
-    ) {
-        $this->entityManager = $entityManager;
-        $this->debugProducer = $debugProducer;
-        $this->statProvider = $statProvider;
+    /** @var Process */
+    protected $process;
 
-        $this->lastSyncCountStat = time();
-        $this->lastSyncProcessorStat = time();
+    public function __construct(ContainerInterface $container)
+    {
+        $this->container = $container;
     }
 
     /**
@@ -89,6 +79,7 @@ class MQStatExtension extends AbstractExtension
     {
         try {
             $this->publishProcessorStats();
+            $this->publishCountStat();
             if ($context->isExecutionInterrupted() && $context->getException()) {
                 $message = $context->getMessage();
                 $name = $message ? $message->getProperty(Config::PARAMETER_PROCESSOR_NAME) : null;
@@ -97,18 +88,22 @@ class MQStatExtension extends AbstractExtension
             }
         } catch (\Exception $e) {
             // do nothing
+        } finally {
+            try {
+                if ($this->process) {
+                    $this->process->stop(2, SIGKILL);
+                }
+            } catch (\Exception $e) {}
         }
     }
 
     protected function sync()
     {
         $time = time();
-        if ($time - $this->lastSyncCountStat > self::COUNT_STAT_SYNC) {
-            $this->publishCountStat();
-            $this->lastSyncCountStat = time();
-        }
 
-        if ($time - $this->lastSyncProcessorStat > self::PROCESSOR_STAT_SYNC) {
+        if ($time - $this->lastSyncProcessorStat > self::POLLING_INTERVAL) {
+            $this->runStatRetrieveCommandIfNeeded();
+            $this->publishCountStat();
             $this->publishProcessorStats();
             $this->lastSyncProcessorStat = time();
         }
@@ -135,29 +130,29 @@ class MQStatExtension extends AbstractExtension
                 'min_time' => $long,
                 'max_time' => $long,
             ];
-        } else {
-            $total = $this->stats[$name]['ack'] + $this->stats[$name]['requeue'] + $this->stats[$name]['reject'];
-            switch ($context->getStatus()) {
-                case MessageProcessorInterface::ACK:
-                    $this->stats[$name]['ack']++;
-                    break;
-                case MessageProcessorInterface::REJECT:
-                    $this->stats[$name]['reject']++;
-                    break;
-                case MessageProcessorInterface::REQUEUE:
-                    $this->stats[$name]['requeue']++;
-                    break;
-            }
-
-            $this->stats[$name]['min_time'] = min($this->stats[$name]['min_time'], $long) ?? $long;
-            $this->stats[$name]['max_time'] = max($this->stats[$name]['max_time'], $long) ?? $long;
-            $this->stats[$name]['avg_time'] = ($this->stats[$name]['avg_time'] * $total + $long)/($total + 1);
         }
+
+        $total = $this->stats[$name]['ack'] + $this->stats[$name]['requeue'] + $this->stats[$name]['reject'];
+        switch ($context->getStatus()) {
+            case MessageProcessorInterface::ACK:
+                $this->stats[$name]['ack']++;
+                break;
+            case MessageProcessorInterface::REJECT:
+                $this->stats[$name]['reject']++;
+                break;
+            case MessageProcessorInterface::REQUEUE:
+                $this->stats[$name]['requeue']++;
+                break;
+        }
+
+        $this->stats[$name]['min_time'] = min($this->stats[$name]['min_time'], $long) ?? $long;
+        $this->stats[$name]['max_time'] = max($this->stats[$name]['max_time'], $long) ?? $long;
+        $this->stats[$name]['avg_time'] = ($this->stats[$name]['avg_time'] * $total + $long)/($total + 1);
     }
 
     protected function publishProcessorStats()
     {
-        $conn = $this->entityManager->getConnection();
+        $conn = $this->getEntityManager()->getConnection();
 
         foreach ($this->stats as $name => $stat) {
             $stat['name'] = $name;
@@ -179,13 +174,13 @@ class MQStatExtension extends AbstractExtension
 
     protected function publishCountStat()
     {
-        $conn = $this->entityManager->getConnection();
+        $conn = $this->getEntityManager()->getConnection();
 
         $conn->insert(
             'okvpn_mq_change_stat',
             [
                 'created' => new \DateTime('now', new \DateTimeZone('UTC')),
-                'added' => $this->debugProducer->getCount(),
+                'added' => $this->getDebugProducer()->getCount(),
                 'removed' => $this->processedCount,
                 'channel' => 'consumer'
             ],
@@ -198,12 +193,12 @@ class MQStatExtension extends AbstractExtension
         );
 
         $this->processedCount = 0;
-        $this->debugProducer->clear();
+        $this->getDebugProducer()->clear();
     }
 
     protected function publishErrorStat(\Exception $e, $processorName = null, $messageId = null)
     {
-        $conn = $this->entityManager->getConnection();
+        $conn = $this->getEntityManager()->getConnection();
         $log = sprintf(
             "[%s] %s in %s:%s.\nTrace:\n%s",
             get_class($e), $e->getMessage(), $e->getFile(), $e->getLine(), $e->getTraceAsString()
@@ -224,5 +219,47 @@ class MQStatExtension extends AbstractExtension
                 'log' => Type::TEXT,
             ]
         );
+    }
+
+    protected function runStatRetrieveCommandIfNeeded()
+    {
+        if (!getenv('SKIP_STAT_RETRIEVE')
+            && !$this->container->getParameter('okvpn_mq_insight.skip_stat_retrieve')
+            && !ProcessManager::isProcessRunning(StatRetrieveCommand::NAME)
+        ) {
+            $pb = new ProcessBuilder();
+
+            $phpFinder = new PhpExecutableFinder();
+            $phpPath   = $phpFinder->find();
+            $pb
+                ->add($phpPath)
+                ->add($_SERVER['argv'][0])
+                ->add(StatRetrieveCommand::NAME)
+                ->add(getmypid());
+
+            $process = $pb
+                ->setTimeout(3600)
+                ->inheritEnvironmentVariables(true)
+                ->getProcess();
+
+            $process->start();
+            $this->process = $process;
+        }
+    }
+
+    /**
+     * @return EntityManagerInterface
+     */
+    protected function getEntityManager()
+    {
+        return $this->container->get('doctrine.orm.default_entity_manager');
+    }
+
+    /**
+     * @return DebugProducerInterface
+     */
+    protected function getDebugProducer()
+    {
+        return $this->container->get('okvpn_mq_insight.debug_message_producer');
     }
 }

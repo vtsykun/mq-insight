@@ -1,9 +1,15 @@
+parameters:
+    okvpn_mq_insight.skip_stat_retrieve: false
+
 services:
     okvpn_mq_insight.provider_dbal:
         class: Okvpn\Bundle\MQInsightBundle\Model\DbalQueueStatProvider
         arguments: ['@doctrine.orm.default_entity_manager']
         tags:
             - { name: okvpn.mq_stat_provider, driver: dbal }
+
+    okvpn_mq_insight.queue_provider:
+        alias: okvpn_mq_insight.provider_dbal
 
     okvpn_mq_insight.debug_message_producer:
         class: Okvpn\Bundle\MQInsightBundle\Client\DebugMessageProducer
@@ -22,9 +28,6 @@ services:
 
     okvpn_redis_queue.stat_extension:
         class: Okvpn\Bundle\MQInsightBundle\Extension\MQStatExtension
-        arguments:
-            - '@doctrine.orm.default_entity_manager'
-            - '@okvpn_mq_insight.debug_message_producer'
-            - '@okvpn_mq_insight.provider_dbal'
+        arguments: ['@service_container']
         tags:
-            - { name: 'oro_message_queue.consumption.extension', priority: 10 }
+            - { name: 'oro_message_queue.consumption.extension', persistent: true, priority: 10 }

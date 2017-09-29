@@ -10,7 +10,7 @@ class DebugMessageProducer implements MessageProducerInterface, DebugProducerInt
     protected $messageProducer;
 
     /** @var int */
-    protected $count = 0;
+    protected static $count = 0;
 
     /**
      * @param MessageProducerInterface $messageProducer
@@ -26,7 +26,7 @@ class DebugMessageProducer implements MessageProducerInterface, DebugProducerInt
     public function send($topic, $message)
     {
         $this->messageProducer->send($topic, $message);
-        $this->count++;
+        self::$count++;
     }
 
     /**
@@ -34,7 +34,7 @@ class DebugMessageProducer implements MessageProducerInterface, DebugProducerInt
      */
     public function getCount()
     {
-        return $this->count;
+        return self::$count;
     }
 
     /**
@@ -42,6 +42,6 @@ class DebugMessageProducer implements MessageProducerInterface, DebugProducerInt
      */
     public function clear()
     {
-        $this->count = 0;
+        self::$count = 0;
     }
 }
