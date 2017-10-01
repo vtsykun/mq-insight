@@ -1,0 +1,36 @@
+<div id="mq-size"></div>
+
+<script>
+    setTimeout(function () {
+        require(['d3', 'c3'], function(d3, c3) {
+            var columns = [];
+            columns = {{ sizeData|json_encode|raw }};
+            if (typeof columns[0] !== 'undefined') {
+                var data = {
+                    bindto: '#mq-size',
+                    data: {
+                        x: 'created',
+                        xFormat: '%Y-%m-%dT%H:%M:%S',
+                        columns: columns
+                    },
+                    axis: {
+                        x: {
+                            type: 'timeseries',
+                            tick: {
+                                format: '%Y-%m-%d %H:%M:%S',
+                                count: 7
+                            }
+                        }
+                    },
+                    point: {
+                        show: false
+                    },
+                    zoom: {
+                        enabled: true
+                    }
+                };
+                c3.generate(data);
+            }
+        });
+    }, 1500);
+</script>

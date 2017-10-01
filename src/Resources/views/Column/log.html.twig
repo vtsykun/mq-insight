@@ -1,0 +1,9 @@
+{% import 'OroUIBundle::macros.html.twig' as UI %}
+
+{% if record.getValue('log') is not empty %}
+    <div data-toggle="tooltip" data-placement="left" title="{{ record.getValue('log')|truncate(150) }}">
+        {{ record.getValue('log')|truncate(48) }}
+    </div>
+{% else %}
+    {{ 'N/A'|trans }}
+{% endif %}

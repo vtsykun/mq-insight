@@ -51,7 +51,7 @@ class MQStateStat
      *
      * @param \DateTime $created
      *
-     * @return MQState
+     * @return $this
      */
     public function setCreated($created)
     {
@@ -75,7 +75,7 @@ class MQStateStat
      *
      * @param integer $queue
      *
-     * @return MQState
+     * @return $this
      */
     public function setQueue($queue)
     {

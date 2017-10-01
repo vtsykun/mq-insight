@@ -31,3 +31,7 @@ services:
         arguments: ['@service_container']
         tags:
             - { name: 'oro_message_queue.consumption.extension', persistent: true, priority: 10 }
+
+    okvpn_redis_queue.chart_provider:
+        class: Okvpn\Bundle\MQInsightBundle\Provider\QueueChartProvider
+        arguments: ['@doctrine']

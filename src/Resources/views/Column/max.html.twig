@@ -1,0 +1,5 @@
+{% import 'OroUIBundle::macros.html.twig' as UI %}
+
+{% if record.getValue('maxTime') is not empty %}
+    {{  record.getValue('maxTime')|round(2) }}
+{% endif %}

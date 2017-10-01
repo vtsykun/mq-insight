@@ -1,0 +1,69 @@
+{% extends 'OroUIBundle:actions:view.html.twig' %}
+{% import 'OroDataGridBundle::macros.html.twig' as dataGrid %}
+
+{% block stats %}{% endblock %}
+
+{% block content_data %}
+    <link rel="stylesheet" href="{{ asset('bundles/okvpnmqinsight/css/c3.min.css') }}">
+
+    {% set mainInfo %}
+        {{ oro_widget_render({
+            'widgetType': 'block',
+            'contentClasses': [],
+            'url': path('okvpn_mq_insight_info'),
+            'title': 'Summary of queue statistics for the previous 24 hour period.'
+        }) }}
+    {% endset %}
+
+    {% set gridErrors %}
+        {{ dataGrid.renderGrid('message-queue-error-grid') }}
+    {% endset %}
+
+    {% set gridProcessor %}
+        <b >Processor statistics for the previous 24 hour period.</b>
+        {{ dataGrid.renderGrid('message-queue-processor-grid', {created: fetchFrom}) }}
+    {% endset %}
+
+    {% set dataBlocks = [
+        {
+            'title': 'General Information'|trans,
+            'class': 'active',
+            'subblocks': [
+                {'data' : [mainInfo] },
+                {'data' : [gridProcessor]}
+            ]
+        }
+    ] %}
+
+    {% set chartData %}
+        {% include 'OkvpnMQInsightBundle:Queue:lineChart.html.twig' %}
+    {% endset %}
+
+    {% set dataBlocks = dataBlocks|merge([{
+        'title': 'Average Queue Size',
+        'priority' : 100,
+        'subblocks': [
+            {
+                'spanClass': 'empty activities-container',
+                'data': [chartData]
+            }
+        ]
+    }]) %}
+
+    {% set dataBlocks = dataBlocks|merge([{
+        'title': 'Errors',
+        'priority' : 120,
+        'subblocks': [
+            {
+                'spanClass': 'empty activities-container',
+                'data': [gridErrors]
+            }
+        ]
+    }]) %}
+
+    {% set id = 'message-queue-status' %}
+    {% set data = { 'dataBlocks': dataBlocks } %}
+
+    {{ parent() }}
+{% endblock %}
+

@@ -54,7 +54,7 @@ class StatRetrieveCommand extends ContainerAwareCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $pollingInterval = $input->getOption('pollingInterval') ?? 20;
+        $pollingInterval = $input->getOption('pollingInterval') ?? 60;
         $shmid = function_exists('sem_get') ? sem_get(self::IPCS) : null;
 
         if ($shmid && !sem_acquire($shmid, true)) {
@@ -62,11 +62,11 @@ class StatRetrieveCommand extends ContainerAwareCommand
             return 0;
         }
 
-        $cycleNumber = 0;
+        $maxCycleNumber = 1000;
         try {
-            while (++$cycleNumber) {
+            while ($maxCycleNumber--) {
                 // terminate if needed
-                if (1 === $cycleNumber % 4 && $this->shouldBeTerminate()) {
+                if ($this->shouldBeTerminate()) {
                     $output->writeln('<info>Not allowed to run a more one command.</info>');
                     return 0;
                 }

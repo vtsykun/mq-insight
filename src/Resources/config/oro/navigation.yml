@@ -1,0 +1,20 @@
+navigation:
+    menu_config:
+        items:
+            okvpn_message_queue:
+                label:    'Message queue'
+                route:    'okvpn_mq_insight_status'
+                position: 62
+                extras:
+                    description: 'Queue status'
+                    routes:      ['okvpn_mq_insight_*']
+
+        tree:
+            application_menu:
+                children:
+                    system_tab:
+                        children:
+                            okvpn_message_queue: ~
+
+    titles:
+        okvpn_mq_insight_status: 'Queue status'
