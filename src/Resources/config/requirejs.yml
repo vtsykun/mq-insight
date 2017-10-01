@@ -1,0 +1,4 @@
+config:
+    paths:
+        'c3': 'bundles/okvpnmqinsight/js/app/c3.min.js'
+        'd3': 'bundles/okvpnmqinsight/js/app/d3.min.js'

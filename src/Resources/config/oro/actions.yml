@@ -1,0 +1,23 @@
+operations:
+    okvpn_show_error:
+        label: Show log
+        page_reload: false
+        acl_resource: message_queue_view_stat
+        button_options:
+            icon: fa-info
+        datagrids:
+            - message-queue-error-grid
+        frontend_options:
+            template: OkvpnMQInsightBundle:Column:log_info.html.twig
+            options:
+                dblclick: maximize
+                width: 980
+                height: 48%
+        attributes:
+            empty:
+                label: ' '
+                type: string
+        form_options:
+            attribute_fields:
+                empty:
+                    form_type: text

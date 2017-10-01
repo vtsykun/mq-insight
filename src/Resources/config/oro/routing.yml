@@ -1,0 +1,4 @@
+okvpn_mq_insight_bundle:
+    resource:     "@OkvpnMQInsightBundle/Controller"
+    type:         annotation
+    prefix:       /insight

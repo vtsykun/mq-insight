@@ -1,0 +1,5 @@
+{% import 'OroUIBundle::macros.html.twig' as UI %}
+
+{% if record.getValue('avgTime') is not empty %}
+    {{ record.getValue('avgTime')|round(3) }}
+{% endif %}

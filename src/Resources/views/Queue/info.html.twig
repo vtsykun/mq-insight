@@ -1,0 +1,23 @@
+{% import 'OroUIBundle::macros.html.twig' as ui %}
+
+<div class="widget-content">
+    <div class="row-fluid form-horizontal contact-info">
+        <div class="responsive-block">
+            <div style="font-size: 1.2em"> Running consumers:
+                {% if count > 0 %}
+                    <br> PID: <code>{{ running|join('|') }}</code>
+                {% else %}
+                    N/A
+                {% endif %}
+            </div>
+        </div>
+        <div class="responsive-block">
+            {{ ui.renderHtmlProperty('Queue size', size) }}
+            {{ ui.renderHtmlProperty('Avg. queue size', dailyStat.avgSize|round) }}
+            {{ ui.renderHtmlProperty('Consumers', count) }}
+            {{ ui.renderHtmlProperty('Added to route', dailyStat.added|number_format) }}
+            {{ ui.renderHtmlProperty('Processed', dailyStat.removed|number_format) }}
+            {{ ui.renderHtmlProperty('Errors', dailyStat.error) }}
+        </div>
+    </div>
+</div>

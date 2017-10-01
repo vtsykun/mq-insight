@@ -2,6 +2,10 @@
 
 namespace Okvpn\Bundle\MQInsightBundle\Entity\Repository;
 
+use Doctrine\ORM\AbstractQuery;
+use Okvpn\Bundle\MQInsightBundle\Entity\MQChangeStat;
+use Okvpn\Bundle\MQInsightBundle\Entity\MQErrorStat;
+
 /**
  * MQStateRepository
  *
@@ -10,4 +14,64 @@ namespace Okvpn\Bundle\MQInsightBundle\Entity\Repository;
  */
 class MQStateRepository extends \Doctrine\ORM\EntityRepository
 {
+    /**
+     * @param \DateTime $fetchFrom
+     * @return array
+     */
+    public function getQueueSize(\DateTime $fetchFrom)
+    {
+        $qb = $this->createQueryBuilder('s');
+        $qb->select('s.created', 's.queue')
+            ->orderBy('s.id')
+            ->where('s.created > :from')
+            ->setParameter('from', $fetchFrom);
+
+        return $qb->getQuery()->getResult(AbstractQuery::HYDRATE_ARRAY);
+    }
+
+    /**
+     * @param \DateTime $fetchFrom
+     * @return mixed
+     */
+    public function getAvgSize(\DateTime $fetchFrom)
+    {
+        $qb = $this->createQueryBuilder('s');
+        $qb->select('AVG(s.queue)')
+            ->where('s.created > :from')
+            ->setParameter('from', $fetchFrom);
+
+        $result = $qb->getQuery()->getOneOrNullResult();
+        return !empty($result) ? reset($result) : null;
+    }
+
+    /**
+     * @param \DateTime $fetchFrom
+     * @return array
+     */
+    public function getChangeCount(\DateTime $fetchFrom)
+    {
+        $qb = $this->_em->createQueryBuilder();
+        $qb->select('SUM(s.added) as added', 'SUM(s.removed) as removed')
+            ->from(MQChangeStat::class, 's')
+            ->where('s.created > :from')
+            ->setParameter('from', $fetchFrom);
+
+        return $qb->getQuery()->getResult(AbstractQuery::HYDRATE_ARRAY);
+    }
+
+    /**
+     * @param \DateTime $fetchFrom
+     * @return mixed|null
+     */
+    public function getErrorCount(\DateTime $fetchFrom)
+    {
+        $qb = $this->_em->createQueryBuilder();
+        $qb->select('COUNT(1) as error')
+            ->from(MQErrorStat::class, 'e')
+            ->where('e.created > :from')
+            ->setParameter('from', $fetchFrom);
+
+        $result = $qb->getQuery()->getOneOrNullResult();
+        return !empty($result) ? reset($result) : null;
+    }
 }

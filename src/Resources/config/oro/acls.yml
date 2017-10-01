@@ -1,0 +1,7 @@
+acls:
+    message_queue_view_stat:
+        label: View message queue statistics
+        description: View message queue statistics
+        type: action
+        group_name: ""
+        category: "application"

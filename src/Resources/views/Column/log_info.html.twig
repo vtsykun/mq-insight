@@ -1,0 +1,9 @@
+{% extends 'OroActionBundle:Operation:form.html.twig' %}
+
+{% block widget_content %}
+<div class="widget-content">
+    <pre style="font-size: 0.85em; white-space: pre;overflow:auto; word-wrap:normal" class="pre-scrollable">
+        {{ context.data.log }}
+    </pre>
+</div>
+{% endblock %}
