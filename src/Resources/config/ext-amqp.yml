@@ -1,0 +1,7 @@
+services:
+    okvpn_mq_insight.provider_amqp_ext:
+        class: Okvpn\Bundle\MQInsightBundle\Model\StatProvider\AMQPQueueStatProviderExt
+        public: false
+        arguments: ['@oro_message_queue.client.meta.destination_meta_registry', [], []]
+        tags:
+            - { name: okvpn.mq_stat_provider, driver: amqp }
