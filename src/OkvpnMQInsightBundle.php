@@ -2,6 +2,7 @@
 
 namespace Okvpn\Bundle\MQInsightBundle;
 
+use Okvpn\Bundle\MQInsightBundle\DependencyInjection\CompilerPass\AddAMQPProviderPass;
 use Okvpn\Bundle\MQInsightBundle\DependencyInjection\CompilerPass\StatMessageQueuePass;
 use Okvpn\Bundle\MQInsightBundle\Model\AppConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -15,6 +16,7 @@ class OkvpnMQInsightBundle extends Bundle
     public function build(ContainerBuilder $container)
     {
         $container->addCompilerPass(new StatMessageQueuePass());
+        $container->addCompilerPass(new AddAMQPProviderPass());
     }
 
     /**
@@ -22,7 +24,6 @@ class OkvpnMQInsightBundle extends Bundle
      */
     public function boot()
     {
-        // To avoid conflicts when using multiple applications on a single server
         AppConfig::setToken(realpath($this->container->getParameter('kernel.root_dir')));
     }
 }

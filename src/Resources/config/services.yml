@@ -3,21 +3,14 @@ parameters:
 
 services:
     okvpn_mq_insight.provider_dbal:
-        class: Okvpn\Bundle\MQInsightBundle\Model\DbalQueueStatProvider
+        class: Okvpn\Bundle\MQInsightBundle\Model\StatProvider\DbalQueueStatProvider
         public: false
         arguments: ['@doctrine.orm.default_entity_manager']
         tags:
             - { name: okvpn.mq_stat_provider, driver: dbal }
 
-    okvpn_mq_insight.provider_amqp:
-        class: Okvpn\Bundle\MQInsightBundle\Model\AMQPQueueStatProvider
-        public: false
-        arguments: ['@oro_message_queue.client.meta.destination_meta_registry', ~]
-        tags:
-            - { name: okvpn.mq_stat_provider, driver: amqp }
-
     okvpn_mq_insight.queue_provider:
-        class: Okvpn\Bundle\MQInsightBundle\Model\DefaultQueueStatProvider
+        class: Okvpn\Bundle\MQInsightBundle\Model\StatProvider\DefaultQueueStatProvider
         arguments: [~]
 
     okvpn_mq_insight.debug_message_producer:

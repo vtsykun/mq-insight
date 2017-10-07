@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Types\Type;
 use Okvpn\Bundle\MQInsightBundle\Manager\ProcessManager;
 use Okvpn\Bundle\MQInsightBundle\Model\AppConfig;
-use Okvpn\Bundle\MQInsightBundle\Model\QueueStatProviderInterface;
+use Okvpn\Bundle\MQInsightBundle\Model\StatProvider\QueueStatProviderInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

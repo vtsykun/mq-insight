@@ -1,6 +1,6 @@
 <?php
 
-namespace Okvpn\Bundle\MQInsightBundle\Model;
+namespace Okvpn\Bundle\MQInsightBundle\Model\StatProvider;
 
 interface QueueStatProviderInterface
 {

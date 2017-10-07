@@ -17,6 +17,8 @@ class AppConfig
     }
 
     /**
+     * Used to avoid conflicts when using multiple applications on a single server
+     *
      * @return int
      */
     public static function getApplicationID()
