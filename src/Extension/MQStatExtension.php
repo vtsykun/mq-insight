@@ -18,7 +18,7 @@ use Symfony\Component\Process\ProcessBuilder;
 
 class MQStatExtension extends AbstractExtension
 {
-    const POLLING_INTERVAL = 180; // 3 min;
+    const POLLING_INTERVAL = 120; // 2 min;
 
     /** @var array */
     protected $stats = [];

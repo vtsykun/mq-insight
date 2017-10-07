@@ -50,8 +50,8 @@ class OkvpnMQInsightBundleInstaller implements Installation
         $table = $schema->createTable('okvpn_mq_error_stat');
         $table->addColumn('id', Type::INTEGER, ['autoincrement' => true]);
         $table->addColumn('created', Type::DATETIME);
-        $table->addColumn('processor_name', Type::STRING);
-        $table->addColumn('message_id', Type::STRING);
-        $table->addColumn('log', Type::TEXT);
+        $table->addColumn('processor_name', Type::STRING, ['notnull' => false, 'length' => 255]);
+        $table->addColumn('message_id', Type::STRING, ['notnull' => false, 'length' => 255]);
+        $table->addColumn('log', Type::TEXT, ['notnull' => false, 'length' => 255]);
     }
 }
