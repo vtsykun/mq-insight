@@ -5,6 +5,7 @@ namespace Okvpn\Bundle\MQInsightBundle\Command;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Types\Type;
 use Okvpn\Bundle\MQInsightBundle\Manager\ProcessManager;
+use Okvpn\Bundle\MQInsightBundle\Model\AppConfig;
 use Okvpn\Bundle\MQInsightBundle\Model\QueueStatProviderInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -14,7 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class StatRetrieveCommand extends ContainerAwareCommand
 {
-    const IPCS = 0x012fa207;
+    const DEFAULT_POLLING_TIME = 30; // 30 sec
 
     const NAME = 'okvpn:stat:retrieve';
 
@@ -54,8 +55,8 @@ class StatRetrieveCommand extends ContainerAwareCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $pollingInterval = $input->getOption('pollingInterval') ?? 60;
-        $shmid = function_exists('sem_get') ? sem_get(self::IPCS) : null;
+        $pollingInterval = $input->getOption('pollingInterval') ?? self::DEFAULT_POLLING_TIME;
+        $shmid = function_exists('sem_get') ? sem_get(AppConfig::getApplicationID()) : null;
 
         if ($shmid && !sem_acquire($shmid, true)) {
             $output->writeln('<info>Not allowed to run a more one command.</info>');
