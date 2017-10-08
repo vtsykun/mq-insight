@@ -29,7 +29,7 @@ php app/console oro:platform:update --force
 
 ## Demo
 
-http://demo.oroinc.me/insight/queue-status/
+http://demo.oroinc.me/insight/queue-status/ (login: admin, password: admin)
 
 ## Contributing 
 
