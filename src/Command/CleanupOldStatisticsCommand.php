@@ -55,9 +55,59 @@ class CleanupOldStatisticsCommand extends ContainerAwareCommand implements CronC
      */
     public function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->processChangesStatistics();
+        $this->processCountStatistics();
+        $this->processProcessorStatistics();
+        $this->processErrorStatistics();
     }
 
     protected function processCountStatistics()
     {
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->delete('OkvpnMQInsightBundle:MQStateStat', 'e')
+            ->where('e.created < :created')
+            ->setParameter('created', new \DateTime($this->getIntervalForDeletions()));
+
+        $qb->getQuery()->execute();
+    }
+
+    protected function processChangesStatistics()
+    {
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->delete('OkvpnMQInsightBundle:MQChangeStat', 'e')
+            ->where('e.created < :created')
+            ->setParameter('created', new \DateTime($this->getIntervalForDeletions()));
+
+        $qb->getQuery()->execute();
+    }
+
+    protected function processProcessorStatistics()
+    {
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->delete('OkvpnMQInsightBundle:ProcessorStat', 'e')
+            ->where('e.created < :created')
+            ->setParameter('created', new \DateTime($this->getIntervalForDeletions()));
+
+        $qb->getQuery()->execute();
+    }
+
+    protected function processErrorStatistics()
+    {
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->delete('OkvpnMQInsightBundle:MQErrorStat', 'e')
+            ->where('e.created < :created')
+            ->setParameter('created', new \DateTime($this->getIntervalForDeletionsError()));
+
+        $qb->getQuery()->execute();
+    }
+
+    protected function getIntervalForDeletions()
+    {
+        return '-5 days';
+    }
+
+    protected function getIntervalForDeletionsError()
+    {
+        return '-30 days';
     }
 }
