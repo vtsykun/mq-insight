@@ -27,6 +27,10 @@ After install run command
 php app/console oro:platform:update --force
 ```
 
+## Demo
+
+http://demo.oroinc.me/insight/queue-status/
+
 ## Contributing 
 
 Contributions from the community are accepted. 
