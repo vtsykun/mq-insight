@@ -38,6 +38,8 @@ datagrids:
                     data_name: created
                 id:
                     data_name: id
+                processor:
+                    data_name: processor
             default:
                 id: DESC
         filters:

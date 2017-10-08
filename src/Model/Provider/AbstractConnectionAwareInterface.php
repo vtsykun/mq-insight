@@ -1,6 +1,6 @@
 <?php
 
-namespace Okvpn\Bundle\MQInsightBundle\Model\StatProvider;
+namespace Okvpn\Bundle\MQInsightBundle\Model\Provider;
 
 use Oro\Component\MessageQueue\Transport\ConnectionInterface;
 

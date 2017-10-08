@@ -21,3 +21,38 @@ operations:
             attribute_fields:
                 empty:
                     form_type: text
+
+    okvpn_delete_error_message:
+        label: Delete invalid message from queue
+        acl_resource: message_queue_view_stat
+        button_options:
+            icon: fa-chain-broken
+        datagrids:
+            - message-queue-error-grid
+        preactions:
+            - '@call_service_method':
+                service: okvpn_mq_insight.queue_provider
+                method: getProvider
+                attribute: $.provider
+        preconditions:
+            '@instanceof': [$.provider, Okvpn\Bundle\MQInsightBundle\Model\Provider\RandomAccessQueueInterface]
+        actions:
+            - '@call_service_method':
+                service: okvpn_mq_insight.queue_provider
+                method: deleteMessage
+                attribute: $.result
+                method_parameters: [$message]
+            - '@tree':
+                conditions:
+                    '@equal': [$.result, true]
+                actions:
+                    - '@flash_message':
+                        message: The message was deleted
+                        type: 'success'
+            - '@tree':
+                conditions:
+                    '@equal': [$.result, false]
+                actions:
+                    - '@flash_message':
+                        message: Message not in the queue, it may have been deleted earlier
+                        type: 'error'

@@ -1,6 +1,6 @@
 <?php
 
-namespace Okvpn\Bundle\MQInsightBundle\Model\StatProvider;
+namespace Okvpn\Bundle\MQInsightBundle\Model\Provider;
 
 use Oro\Component\MessageQueue\Client\Meta\DestinationMetaRegistry;
 use Oro\Component\MessageQueue\Transport\ConnectionInterface;
@@ -11,7 +11,7 @@ use PhpAmqpLib\Wire\AMQPTable;
 /**
  * For PhpAmqpLib
  */
-class AMQPQueueStatProvider implements QueueStatProviderInterface, AbstractConnectionAwareInterface
+class AMQPQueueProvider implements QueueProviderInterface, AbstractConnectionAwareInterface
 {
     /** @var ConnectionInterface */
     protected $connection;

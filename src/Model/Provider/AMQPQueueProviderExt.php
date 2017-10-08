@@ -1,13 +1,13 @@
 <?php
 
-namespace Okvpn\Bundle\MQInsightBundle\Model\StatProvider;
+namespace Okvpn\Bundle\MQInsightBundle\Model\Provider;
 
 use Oro\Component\MessageQueue\Client\Meta\DestinationMetaRegistry;
 
 /**
  * For amqp-ext. @see http://php.net/manual/fa/book.amqp.php
  */
-class AMQPQueueStatProviderExt implements QueueStatProviderInterface
+class AMQPQueueProviderExt implements QueueProviderInterface
 {
     /** @var array */
     protected $config;

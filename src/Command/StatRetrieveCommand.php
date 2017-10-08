@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Types\Type;
 use Okvpn\Bundle\MQInsightBundle\Manager\ProcessManager;
 use Okvpn\Bundle\MQInsightBundle\Model\AppConfig;
-use Okvpn\Bundle\MQInsightBundle\Model\StatProvider\QueueStatProviderInterface;
+use Okvpn\Bundle\MQInsightBundle\Model\Provider\QueueProviderInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -22,8 +22,8 @@ class StatRetrieveCommand extends ContainerAwareCommand
     /** @var Connection */
     protected $connection;
 
-    /** @var QueueStatProviderInterface */
-    protected $statProvider;
+    /** @var QueueProviderInterface */
+    protected $queueProvider;
 
     /** @var int */
     protected $parentPid;
@@ -45,7 +45,7 @@ class StatRetrieveCommand extends ContainerAwareCommand
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
         $this->connection = $this->getContainer()->get('doctrine.orm.default_entity_manager')->getConnection();
-        $this->statProvider = $this->getContainer()->get('okvpn_mq_insight.queue_provider');
+        $this->queueProvider = $this->getContainer()->get('okvpn_mq_insight.queue_provider');
         $this->parentPid = (int) $input->getArgument('parentPid');
 
     }
@@ -86,7 +86,7 @@ class StatRetrieveCommand extends ContainerAwareCommand
 
     protected function process()
     {
-        $count = $this->statProvider->queueCount();
+        $count = $this->queueProvider->queueCount();
 
         $this->connection->insert(
             'okvpn_mq_state_stat',

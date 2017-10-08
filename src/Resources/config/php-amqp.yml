@@ -1,6 +1,6 @@
 services:
     okvpn_mq_insight.provider_amqp_php:
-        class: Okvpn\Bundle\MQInsightBundle\Model\StatProvider\AMQPQueueStatProvider
+        class: Okvpn\Bundle\MQInsightBundle\Model\Provider\AMQPQueueProvider
         public: false
         arguments: ['@oro_message_queue.client.meta.destination_meta_registry', ~, []]
         tags:

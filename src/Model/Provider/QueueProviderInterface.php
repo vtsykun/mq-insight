@@ -1,8 +1,8 @@
 <?php
 
-namespace Okvpn\Bundle\MQInsightBundle\Model\StatProvider;
+namespace Okvpn\Bundle\MQInsightBundle\Model\Provider;
 
-interface QueueStatProviderInterface
+interface QueueProviderInterface
 {
     /**
      * Should return number of messages in the queue
