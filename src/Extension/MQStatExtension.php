@@ -254,6 +254,7 @@ class MQStatExtension extends AbstractExtension
             && !$this->container->getParameter('okvpn_mq_insight.skip_stat_retrieve')
             && !ProcessManager::isProcessRunning(StatRetrieveCommand::NAME)
         ) {
+            $env = $this->container->get('kernel')->getEnvironment();
             $pb = new ProcessBuilder();
 
             $phpFinder = new PhpExecutableFinder();
@@ -262,7 +263,8 @@ class MQStatExtension extends AbstractExtension
                 ->add($phpPath)
                 ->add($_SERVER['argv'][0])
                 ->add(StatRetrieveCommand::NAME)
-                ->add(getmypid());
+                ->add(getmypid())
+                ->add("--env=$env");
 
             $process = $pb
                 ->setTimeout(3600)
