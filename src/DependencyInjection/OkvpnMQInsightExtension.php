@@ -24,6 +24,14 @@ class OkvpnMQInsightExtension extends Extension
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
+        $loader->load('storage.yml');
         $loader->load(extension_loaded('amqp') ? 'ext-amqp.yml' : 'php-amqp.yml');
+
+        // todo temporary implementation, so replace on config in future
+        if (extension_loaded('sysvshm')) {
+            $container->setAlias('okvpn_mq_insight.storage', 'okvpn_mq_insight.storage.shared_memory');
+        } else {
+            $container->setAlias('okvpn_mq_insight.storage', 'okvpn_mq_insight.storage.cache');
+        }
     }
 }

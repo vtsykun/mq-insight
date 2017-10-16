@@ -19,7 +19,7 @@ services:
         arguments:
             - '@okvpn_mq_insight.debug_message_producer.inner'
 
-    okvpn_redis_queue.listener.flush_message:
+    okvpn_mq_insight.listener.flush_message:
         class: Okvpn\Bundle\MQInsightBundle\EventListener\MQStatCollectorListener
         arguments:
             - '@doctrine.orm.default_entity_manager'
@@ -28,12 +28,16 @@ services:
             - { name: kernel.event_listener, event: kernel.terminate, method: onKernelTerminate }
             - { name: kernel.event_listener, event: console.terminate, method: onConsoleTerminate }
 
-    okvpn_redis_queue.stat_extension:
+    okvpn_mq_insight.stat_extension:
         class: Okvpn\Bundle\MQInsightBundle\Extension\MQStatExtension
         arguments: ['@service_container']
         tags:
             - { name: 'oro_message_queue.consumption.extension', persistent: true, priority: 10 }
 
-    okvpn_redis_queue.chart_provider:
+    okvpn_mq_insight.chart_provider:
         class: Okvpn\Bundle\MQInsightBundle\Provider\QueueChartProvider
         arguments: ['@doctrine']
+
+    okvpn_mq_insight.queued_messages_provider:
+        class: Okvpn\Bundle\MQInsightBundle\Provider\QueuedMessagesProvider
+        arguments: ['@okvpn_mq_insight.storage']

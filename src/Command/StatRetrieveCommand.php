@@ -7,6 +7,7 @@ use Doctrine\DBAL\Types\Type;
 use Okvpn\Bundle\MQInsightBundle\Manager\ProcessManager;
 use Okvpn\Bundle\MQInsightBundle\Model\AppConfig;
 use Okvpn\Bundle\MQInsightBundle\Model\Provider\QueueProviderInterface;
+use Okvpn\Bundle\MQInsightBundle\Provider\QueuedMessagesProvider;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -28,6 +29,12 @@ class StatRetrieveCommand extends ContainerAwareCommand
     /** @var int */
     protected $parentPid;
 
+    /** @var int */
+    protected $pollingInterval;
+
+    /** @var QueuedMessagesProvider */
+    protected $messagesProvider;
+
     /**
      * {@inheritdoc}
      */
@@ -47,7 +54,8 @@ class StatRetrieveCommand extends ContainerAwareCommand
         $this->connection = $this->getContainer()->get('doctrine.orm.default_entity_manager')->getConnection();
         $this->queueProvider = $this->getContainer()->get('okvpn_mq_insight.queue_provider');
         $this->parentPid = (int) $input->getArgument('parentPid');
-
+        $this->pollingInterval = $input->getOption('pollingInterval') ?? self::DEFAULT_POLLING_TIME;
+        $this->messagesProvider = $this->getContainer()->get('okvpn_mq_insight.queued_messages_provider');
     }
 
     /**
@@ -55,7 +63,6 @@ class StatRetrieveCommand extends ContainerAwareCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $pollingInterval = $input->getOption('pollingInterval') ?? self::DEFAULT_POLLING_TIME;
         $shmid = function_exists('sem_get') ? sem_get(AppConfig::getApplicationID()) : null;
 
         if ($shmid && !sem_acquire($shmid, true)) {
@@ -63,17 +70,18 @@ class StatRetrieveCommand extends ContainerAwareCommand
             return 0;
         }
 
-        $maxCycleNumber = 1000;
+        $maxCycleNumber = 3600;
         try {
             while ($maxCycleNumber--) {
                 // terminate if needed
-                if ($this->shouldBeTerminate()) {
+                if ($maxCycleNumber % 60 === 0 && $this->shouldBeTerminate()) {
                     $output->writeln('<info>Not allowed to run a more one command.</info>');
                     return 0;
                 }
 
-                $this->process();
-                sleep($pollingInterval);
+                $this->processCount();
+                $this->processQueued();
+                sleep(1);
             }
         } finally {
             if ($shmid) {
@@ -84,8 +92,27 @@ class StatRetrieveCommand extends ContainerAwareCommand
         return 0;
     }
 
-    protected function process()
+    protected function processQueued()
     {
+        static $lastSyncQueued = 0;
+        if (time() - $lastSyncQueued < QueuedMessagesProvider::POLLING_TIME) {
+            return;
+        }
+
+        $lastSyncQueued = time();
+
+        $runningConsumers = ProcessManager::getPidsOfRunningProcess('oro:message-queue:consume');
+        $this->messagesProvider->collect($runningConsumers);
+    }
+
+    protected function processCount()
+    {
+        static $lastSyncCount = 0;
+        if (time() - $lastSyncCount < $this->pollingInterval) {
+            return;
+        }
+
+        $lastSyncCount = time();
         $count = $this->queueProvider->queueCount();
 
         $this->connection->insert(

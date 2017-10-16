@@ -7,6 +7,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Okvpn\Bundle\MQInsightBundle\Client\DebugProducerInterface;
 use Okvpn\Bundle\MQInsightBundle\Command\StatRetrieveCommand;
 use Okvpn\Bundle\MQInsightBundle\Manager\ProcessManager;
+use Okvpn\Bundle\MQInsightBundle\Provider\QueuedMessagesProvider;
 use Oro\Component\MessageQueue\Client\Config;
 use Oro\Component\MessageQueue\Consumption\AbstractExtension;
 use Oro\Component\MessageQueue\Consumption\Context;
@@ -25,10 +26,6 @@ class MQStatExtension extends AbstractExtension
 
     /** @var float */
     protected $start;
-
-    /** @var int */
-    protected $lastSyncProcessorStat = 0;
-
 
     /** @var ContainerInterface */
     protected $container;
@@ -61,7 +58,7 @@ class MQStatExtension extends AbstractExtension
         $this->processRecord($context, $long);
         $this->processedCount++;
 
-        $this->sync();
+        $this->sync(true);
     }
 
     /**
@@ -97,15 +94,45 @@ class MQStatExtension extends AbstractExtension
         }
     }
 
-    protected function sync()
+    protected function sync($isOnPostReceived = false)
     {
-        $time = time();
+        $this->syncQueued($isOnPostReceived);
+        $this->syncStatistics($isOnPostReceived);
+    }
 
-        if ($time - $this->lastSyncProcessorStat > self::POLLING_INTERVAL) {
+    protected function syncStatistics($isOnPostReceived)
+    {
+        static $lastSyncProcessorStat = 0;
+        if (time() - $lastSyncProcessorStat > self::POLLING_INTERVAL) {
             $this->runStatRetrieveCommandIfNeeded();
             $this->publishCountStat();
             $this->publishProcessorStats();
-            $this->lastSyncProcessorStat = time();
+            $lastSyncProcessorStat = time();
+        }
+    }
+
+    protected function syncQueued($isOnPostReceived)
+    {
+        $microtime = microtime(true);
+        static $queued = 0;
+        static $lastSyncTime = 0;
+
+        if ($isOnPostReceived) {
+            $queued++;
+        }
+
+        if ($microtime - $lastSyncTime > (QueuedMessagesProvider::POLLING_TIME - 1)) {
+            if ($lastSyncTime === 0) {
+                $lastSyncTime = $microtime;
+                $queued = 0;
+            }
+
+            $speed = ($queued > 0) ? $queued/($microtime - $lastSyncTime) : 0;
+
+            $provider = $this->container->get('okvpn_mq_insight.queued_messages_provider');
+            $provider->saveResultForPid(getmypid(), [round($speed, 1), time()]);
+            $lastSyncTime = $microtime;
+            $queued = 0;
         }
     }
 

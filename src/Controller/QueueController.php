@@ -8,6 +8,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Oro\Bundle\SecurityBundle\Annotation\AclAncestor;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @Route("/queue-status")
@@ -23,7 +26,7 @@ class QueueController extends Controller
     {
         $fetchFrom = new \DateTime();
         $fetchFrom->modify('-1 day');
-        $data = $this->get('okvpn_redis_queue.chart_provider')->getQueueSizeData($fetchFrom);
+        $data = $this->get('okvpn_mq_insight.chart_provider')->getQueueSizeData($fetchFrom);
 
         return [
             'entity' => new MQStateStat(),
@@ -41,7 +44,7 @@ class QueueController extends Controller
     {
         $runningConsumers = ProcessManager::getPidsOfRunningProcess('oro:message-queue:consume');
         $size = $this->get('okvpn_mq_insight.queue_provider')->queueCount();
-        $dailyStat = $this->get('okvpn_redis_queue.chart_provider')->getDailyStat();
+        $dailyStat = $this->get('okvpn_mq_insight.chart_provider')->getDailyStat();
 
         return [
             'running' => $runningConsumers,
@@ -49,5 +52,30 @@ class QueueController extends Controller
             'size' => $size,
             'dailyStat' => $dailyStat
         ];
+    }
+
+    /**
+     * @Route("/queued", name="okvpn_mq_insight_queued")
+     * @AclAncestor("message_queue_view_stat")
+     *
+     * @param Request $request
+     * @return Response
+     */
+    public function queuedAction(Request $request)
+    {
+        $result = $this->get('okvpn_mq_insight.queued_messages_provider')->getQueuedMessages();
+
+        $runningConsumers = ProcessManager::getPidsOfRunningProcess('oro:message-queue:consume');
+        if ($request->get('isLast')) {
+            $result = end($result) ?: [];
+        }
+
+        return new JsonResponse(
+            [
+                'runningConsumers' => $runningConsumers,
+                'queued' => $result,
+                'size' => $this->get('okvpn_mq_insight.queue_provider')->queueCount()
+            ]
+        );
     }
 }

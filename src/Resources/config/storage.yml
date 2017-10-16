@@ -1,0 +1,15 @@
+services:
+    okvpn_mq_insight.cache.provider:
+        parent: oro.cache.abstract
+        public: false
+        calls:
+            - [ setNamespace, [ 'okvpn_mq_insight' ] ]
+
+    okvpn_mq_insight.storage.cache:
+        class: Okvpn\Bundle\MQInsightBundle\Storage\CacheStorage
+        public: false
+        arguments: ['@okvpn_mq_insight.cache.provider']
+
+    okvpn_mq_insight.storage.shared_memory:
+        class: Okvpn\Bundle\MQInsightBundle\Storage\SharedMemoryStorage
+        public: false
