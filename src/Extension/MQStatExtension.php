@@ -104,7 +104,6 @@ class MQStatExtension extends AbstractExtension
     {
         static $lastSyncProcessorStat = 0;
         if (time() - $lastSyncProcessorStat > self::POLLING_INTERVAL) {
-            $this->runStatRetrieveCommandIfNeeded();
             $this->publishCountStat();
             $this->publishProcessorStats();
             $lastSyncProcessorStat = time();
@@ -128,7 +127,7 @@ class MQStatExtension extends AbstractExtension
             }
 
             $speed = ($queued > 0) ? $queued/($microtime - $lastSyncTime) : 0;
-
+            $this->runStatRetrieveCommandIfNeeded();
             $provider = $this->container->get('okvpn_mq_insight.queued_messages_provider');
             $provider->saveResultForPid(getmypid(), [round($speed, 1), time()]);
             $lastSyncTime = $microtime;

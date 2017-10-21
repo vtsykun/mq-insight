@@ -74,7 +74,7 @@ class StatRetrieveCommand extends ContainerAwareCommand
         try {
             while ($maxCycleNumber--) {
                 // terminate if needed
-                if ($maxCycleNumber % 60 === 0 && $this->shouldBeTerminate()) {
+                if ($maxCycleNumber % 10 === 0 && $this->shouldBeTerminate()) {
                     $output->writeln('<info>Not allowed to run a more one command.</info>');
                     return 0;
                 }
