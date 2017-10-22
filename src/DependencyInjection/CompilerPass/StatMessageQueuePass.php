@@ -2,7 +2,7 @@
 
 namespace Okvpn\Bundle\MQInsightBundle\DependencyInjection\CompilerPass;
 
-use Okvpn\Bundle\MQInsightBundle\Model\AbstractConnectionAwareInterface;
+use Okvpn\Bundle\MQInsightBundle\Model\Provider\AbstractConnectionAwareInterface;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;

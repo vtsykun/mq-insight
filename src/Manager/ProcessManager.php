@@ -4,6 +4,9 @@ namespace Okvpn\Bundle\MQInsightBundle\Manager;
 
 use Symfony\Component\Process\Process;
 
+/**
+ * @deprecated
+ */
 class ProcessManager
 {
     /**

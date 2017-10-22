@@ -7,6 +7,10 @@ use Doctrine\ORM\EntityManagerInterface;
 use Okvpn\Bundle\MQInsightBundle\Client\DebugProducerInterface;
 use Okvpn\Bundle\MQInsightBundle\Command\StatRetrieveCommand;
 use Okvpn\Bundle\MQInsightBundle\Manager\ProcessManager;
+use Okvpn\Bundle\MQInsightBundle\Model\Counter;
+use Okvpn\Bundle\MQInsightBundle\Model\Worker\CallbackTask;
+use Okvpn\Bundle\MQInsightBundle\Model\Worker\DelayPool;
+use Okvpn\Bundle\MQInsightBundle\Provider\QueuedMessagesProvider;
 use Oro\Component\MessageQueue\Client\Config;
 use Oro\Component\MessageQueue\Consumption\AbstractExtension;
 use Oro\Component\MessageQueue\Consumption\Context;
@@ -26,22 +30,55 @@ class MQStatExtension extends AbstractExtension
     /** @var float */
     protected $start;
 
-    /** @var int */
-    protected $lastSyncProcessorStat = 0;
-
-
     /** @var ContainerInterface */
     protected $container;
-
-    /** @var int */
-    protected $processedCount = 0;
 
     /** @var Process */
     protected $process;
 
+    /** @var DelayPool */
+    protected $delayPool;
+
+    /** @var Counter */
+    protected $counter;
+
+    /**
+     * @param ContainerInterface $container
+     */
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
+        $this->delayPool = new DelayPool();
+        $this->counter = new Counter();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function onStart(Context $context)
+    {
+        $this->delayPool->submit(
+            new CallbackTask(function () {$this->publishSpeedStat();}),
+            QueuedMessagesProvider::POLLING_TIME - 1
+        );
+
+        $this->delayPool->submit(
+            new CallbackTask(function () {$this->publishCountStat();}),
+            static::POLLING_INTERVAL
+        );
+
+        $this->delayPool->submit(
+            new CallbackTask(function () {$this->runStatRetrieveCommandIfNeeded();}),
+            2 * QueuedMessagesProvider::POLLING_TIME
+        );
+
+        $this->delayPool->submit(
+            new CallbackTask(function () {$this->publishProcessorStats();}),
+            static::POLLING_INTERVAL
+        );
+
+        $this->counter->add('queued');
+        $this->counter->add('processed');
     }
 
     /**
@@ -59,7 +96,7 @@ class MQStatExtension extends AbstractExtension
     {
         $long = microtime(true) - $this->start;
         $this->processRecord($context, $long);
-        $this->processedCount++;
+        $this->counter->tickAll();
 
         $this->sync();
     }
@@ -99,14 +136,19 @@ class MQStatExtension extends AbstractExtension
 
     protected function sync()
     {
-        $time = time();
+        $this->delayPool->sync();
+    }
 
-        if ($time - $this->lastSyncProcessorStat > self::POLLING_INTERVAL) {
-            $this->runStatRetrieveCommandIfNeeded();
-            $this->publishCountStat();
-            $this->publishProcessorStats();
-            $this->lastSyncProcessorStat = time();
-        }
+    protected function publishSpeedStat()
+    {
+        $microtime = microtime(true);
+        $queued = $this->counter->reset('queued');
+        static $lastSyncTime = 0;
+
+        $speed = ($lastSyncTime !== 0) ? $queued/($microtime - $lastSyncTime) : 0;
+        $provider = $this->container->get('okvpn_mq_insight.queued_messages_provider');
+        $provider->saveResultForPid(getmypid(), [round($speed, 1), time()]);
+        $lastSyncTime = $microtime;
     }
 
     /**
@@ -181,7 +223,7 @@ class MQStatExtension extends AbstractExtension
             [
                 'created' => new \DateTime('now', new \DateTimeZone('UTC')),
                 'added' => $this->getDebugProducer()->getCount(),
-                'removed' => $this->processedCount,
+                'removed' => $this->counter->reset('processed'),
                 'channel' => 'consumer'
             ],
             [
@@ -192,7 +234,6 @@ class MQStatExtension extends AbstractExtension
             ]
         );
 
-        $this->processedCount = 0;
         $this->getDebugProducer()->clear();
     }
 
@@ -227,6 +268,7 @@ class MQStatExtension extends AbstractExtension
             && !$this->container->getParameter('okvpn_mq_insight.skip_stat_retrieve')
             && !ProcessManager::isProcessRunning(StatRetrieveCommand::NAME)
         ) {
+            $env = $this->container->get('kernel')->getEnvironment();
             $pb = new ProcessBuilder();
 
             $phpFinder = new PhpExecutableFinder();
@@ -235,7 +277,8 @@ class MQStatExtension extends AbstractExtension
                 ->add($phpPath)
                 ->add($_SERVER['argv'][0])
                 ->add(StatRetrieveCommand::NAME)
-                ->add(getmypid());
+                ->add(getmypid())
+                ->add("--env=$env");
 
             $process = $pb
                 ->setTimeout(3600)
