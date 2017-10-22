@@ -7,16 +7,19 @@ use Doctrine\DBAL\Types\Type;
 use Okvpn\Bundle\MQInsightBundle\Manager\ProcessManager;
 use Okvpn\Bundle\MQInsightBundle\Model\AppConfig;
 use Okvpn\Bundle\MQInsightBundle\Model\Provider\QueueProviderInterface;
+use Okvpn\Bundle\MQInsightBundle\Model\Worker\CallbackTask;
+use Okvpn\Bundle\MQInsightBundle\Model\Worker\DelayPool;
 use Okvpn\Bundle\MQInsightBundle\Provider\QueuedMessagesProvider;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class StatRetrieveCommand extends ContainerAwareCommand
 {
-    const DEFAULT_POLLING_TIME = 30; // 30 sec
+    const DEFAULT_POLLING_TIME = 60; // 1 min
 
     const NAME = 'okvpn:stat:retrieve';
 
@@ -34,6 +37,9 @@ class StatRetrieveCommand extends ContainerAwareCommand
 
     /** @var QueuedMessagesProvider */
     protected $messagesProvider;
+
+    /** @var DelayPool */
+    protected $delayPool;
 
     /**
      * {@inheritdoc}
@@ -54,8 +60,29 @@ class StatRetrieveCommand extends ContainerAwareCommand
         $this->connection = $this->getContainer()->get('doctrine.orm.default_entity_manager')->getConnection();
         $this->queueProvider = $this->getContainer()->get('okvpn_mq_insight.queue_provider');
         $this->parentPid = (int) $input->getArgument('parentPid');
-        $this->pollingInterval = $input->getOption('pollingInterval') ?? self::DEFAULT_POLLING_TIME;
         $this->messagesProvider = $this->getContainer()->get('okvpn_mq_insight.queued_messages_provider');
+
+        $this->delayPool = new DelayPool();
+
+        $this->delayPool->submit(
+            new CallbackTask(function () {$this->terminateIfNeeded();}),
+            2 * QueuedMessagesProvider::POLLING_TIME,
+            'terminateIfNeeded'
+        );
+
+        $this->delayPool->submit(
+            new CallbackTask(function () {$this->processQueued();}),
+            QueuedMessagesProvider::POLLING_TIME,
+            'processQueued'
+        );
+
+        $this->delayPool->submit(
+            new CallbackTask(function () {$this->processCount();}),
+            $input->getOption('pollingInterval') ?? self::DEFAULT_POLLING_TIME,
+            'processCount'
+        );
+
+        $this->delayPool->setLogger(new ConsoleLogger($output));
     }
 
     /**
@@ -73,14 +100,7 @@ class StatRetrieveCommand extends ContainerAwareCommand
         $maxCycleNumber = 3600;
         try {
             while ($maxCycleNumber--) {
-                // terminate if needed
-                if ($maxCycleNumber % 10 === 0 && $this->shouldBeTerminate()) {
-                    $output->writeln('<info>Not allowed to run a more one command.</info>');
-                    return 0;
-                }
-
-                $this->processCount();
-                $this->processQueued();
+                $this->delayPool->sync();
                 sleep(1);
             }
         } finally {
@@ -94,32 +114,17 @@ class StatRetrieveCommand extends ContainerAwareCommand
 
     protected function processQueued()
     {
-        static $lastSyncQueued = 0;
-        if (time() - $lastSyncQueued < QueuedMessagesProvider::POLLING_TIME) {
-            return;
-        }
-
-        $lastSyncQueued = time();
-
         $runningConsumers = ProcessManager::getPidsOfRunningProcess('oro:message-queue:consume');
         $this->messagesProvider->collect($runningConsumers);
     }
 
     protected function processCount()
     {
-        static $lastSyncCount = 0;
-        if (time() - $lastSyncCount < $this->pollingInterval) {
-            return;
-        }
-
-        $lastSyncCount = time();
-        $count = $this->queueProvider->queueCount();
-
         $this->connection->insert(
             'okvpn_mq_state_stat',
             [
                 'created' => new \DateTime('now', new \DateTimeZone('UTC')),
-                'queue' => $count
+                'queue' => $this->queueProvider->queueCount()
             ],
             [
                 'created' => Type::DATETIME,
@@ -128,12 +133,19 @@ class StatRetrieveCommand extends ContainerAwareCommand
         );
     }
 
-    /**
-     * @return bool
-     */
-    protected function shouldBeTerminate()
+    protected function terminateIfNeeded()
     {
-        return ProcessManager::getNumberOfRunningProcess(self::NAME) > 1
-            || ProcessManager::getProcessNameByPid($this->parentPid) === '';
+        $message = '';
+        if (ProcessManager::getNumberOfRunningProcess(self::NAME) > 1) {
+            $message .= "Running more than one instance StatRetrieveCommand\n";
+        }
+
+        if (ProcessManager::getProcessNameByPid($this->parentPid) === '') {
+            $message = "The parent process died. Parent pid not found:{$this->parentPid}\n";
+        }
+
+        if ($message) {
+            throw new \RuntimeException($message);
+        }
     }
 }

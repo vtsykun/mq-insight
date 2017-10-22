@@ -31,7 +31,7 @@ class OkvpnMQInsightExtension extends Extension
         if (false && extension_loaded('sysvshm')) {
             $container->setAlias('okvpn_mq_insight.storage', 'okvpn_mq_insight.storage.shared_memory');
         } else {
-            $container->setAlias('okvpn_mq_insight.storage', 'okvpn_mq_insight.storage.cache');
+            $container->setAlias('okvpn_mq_insight.storage', 'okvpn_mq_insight.storage.file_system');
         }
     }
 }

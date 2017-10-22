@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Okvpn\Bundle\MQInsightBundle\Storage;
 
@@ -66,7 +67,7 @@ class SharedMemoryStorage implements KeyValueStorageInterface
     protected function getKey(string $key): int
     {
         $key = hexdec(substr(md5($key), 0, 7));
-        return $key;
+        return (int) $key;
     }
 
     protected function init()

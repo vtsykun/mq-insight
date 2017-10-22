@@ -30,7 +30,7 @@ class QueuedMessagesProvider
         $currentItem = 0;
         foreach ($pids as $pid) {
             $result = $this->storage->get((string)$pid);
-            $currentItem += (is_array($result) && $currentTime - $result[1] < 3*self::POLLING_TIME) ? $result[0] : 0;
+            $currentItem += (is_array($result) && $currentTime - $result[1] < 3 * self::POLLING_TIME) ? $result[0] : 0;
         }
 
         $previousResult[] = [$currentTime, $currentItem];
