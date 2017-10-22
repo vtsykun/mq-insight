@@ -61,8 +61,8 @@ datagrids:
                     - SUM(p.ack) as ack
                     - SUM(p.reject) as reject
                     - SUM(p.requeue) as requeue
-                    - AVG(p.maxTime) as maxTime
-                    - AVG(p.minTime) as minTime
+                    - MAX(p.maxTime) as maxTime
+                    - MIN(p.minTime) as minTime
                     - AVG(p.avgTime) as avgTime
                 from:
                     - { table: 'Okvpn\Bundle\MQInsightBundle\Entity\ProcessorStat', alias: p }
