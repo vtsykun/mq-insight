@@ -4,12 +4,28 @@
 
 {% block stats %}{% endblock %}
 
+{% block breadcrumbs %}
+    <div class="pull-left">
+        <b>Status: </b>
+        {% if runningCount > 0 %}
+            <div class="badge badge-enabled status-enabled"><i class="icon-status-enabled fa-circle"></i>
+                {{ 'okvpn.mqinsight.view.running'|trans }}  {{ running|join(',') }}
+            </div>
+        {% else %}
+            <div class="badge badge-disabled status-disabled"><i class="icon-status-disabled fa-circle"></i>
+                {{- 'okvpn.mqinsight.view.stopped'|trans -}}
+            </div>
+        {% endif %}
+    </div>
+{% endblock breadcrumbs %}
+
 {% block content_data %}
     <link rel="stylesheet" href="{{ asset('bundles/okvpnmqinsight/css/c3.min.css') }}">
 
     {% set generalInformation %}
     <div class="widget-content">
-        <b>Statistics for the previous 24 hour period.</b>
+
+        <b>{{ 'okvpn.mqinsight.view.label'|trans }}</b>
         <div class="row-fluid form-horizontal contact-info">
             {{ ui.renderHtmlProperty('okvpn.mqinsight.queue_size'|trans, size) }}
             {{ ui.renderHtmlProperty('okvpn.mqinsight.avg_queue_size'|trans, dailyStat.avgSize|round) }}
@@ -34,7 +50,7 @@
     {% endset %}
 
     {% set gridProcessor %}
-        <b>Processor statistics for the previous 24 hour period.</b>
+        <b>{{ 'okvpn.mqinsight.view.grid_by_processor_label'|trans }}</b>
         {{ dataGrid.renderGrid('message-queue-processor-grid', {created: fetchFrom}) }}
     {% endset %}
 
@@ -47,7 +63,7 @@
             ]
         },
         {
-            'title': 'Online charts',
+            'title': 'okvpn.mqinsight.view.chart'|trans,
             'subblocks': [
                 {'data' : [plotInfo] },
                 {'data' : [gridProcessor]}
@@ -60,7 +76,7 @@
     {% endset %}
 
     {% set dataBlocks = dataBlocks|merge([{
-        'title': 'Average Queue Size',
+        'title': 'okvpn.mqinsight.avg_queue_size'|trans,
         'priority' : 100,
         'subblocks': [
             {
@@ -71,7 +87,7 @@
     }]) %}
 
     {% set dataBlocks = dataBlocks|merge([{
-        'title': 'Errors',
+        'title': 'okvpn.mqinsight.errors'|trans,
         'priority' : 120,
         'subblocks': [
             {

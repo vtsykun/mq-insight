@@ -19,6 +19,8 @@ okvpn:
             title: Message queue statistics
             label: Message queue
         view:
-
+            label: Statistics for the previous 24 hour period
             grid_by_processor_label: Processor statistics for the previous 24 hour period
             chart: Online charts
+            running: Running
+            stopped: Stopped
