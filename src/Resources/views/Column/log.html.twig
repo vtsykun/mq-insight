@@ -1,7 +1,7 @@
 {% import 'OroUIBundle::macros.html.twig' as UI %}
 
 {% if record.getValue('log') is not empty %}
-    {{ record.getValue('log')|truncate(32) }}
+    {{ record.getValue('log')|truncate(40) }}
 {% else %}
     {{ 'N/A'|trans }}
 {% endif %}

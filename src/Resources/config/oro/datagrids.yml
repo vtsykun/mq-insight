@@ -17,10 +17,10 @@ datagrids:
                 label: ID
                 frontend_type: integer
             created:
-                label: Created
+                label: oro.ui.created_at
                 frontend_type: datetime
             processor:
-                label: Processor
+                label: okvpn.mqinsight.processor.label
                 frontend_type: string
             message:
                 label: Message ID
@@ -63,7 +63,10 @@ datagrids:
                     - SUM(p.requeue) as requeue
                     - MAX(p.maxTime) as maxTime
                     - MIN(p.minTime) as minTime
-                    - AVG(p.avgTime) as avgTime
+                    - >
+                      SUM(p.avgTime*(p.ack + p.reject + p.requeue))/(
+                        CASE WHEN SUM(p.ack + p.reject + p.requeue) > 0 THEN SUM(p.ack + p.reject + p.requeue) ELSE 1 END
+                      ) as avgTime
                 from:
                     - { table: 'Okvpn\Bundle\MQInsightBundle\Entity\ProcessorStat', alias: p }
                 where:
@@ -74,34 +77,34 @@ datagrids:
                 created: created
         columns:
             processor:
-                label: Processor
+                label: okvpn.mqinsight.processor.label
                 frontend_type: string
             ack:
-                label: Ack
+                label: okvpn.mqinsight.ack.label
                 frontend_type: integer
             reject:
-                label: Reject
+                label: okvpn.mqinsight.reject.label
                 frontend_type: integer
             requeue:
-                label: Requeue
+                label: okvpn.mqinsight.requeue.label
                 frontend_type: integer
             avgTime:
-                label: Avg
+                label: okvpn.mqinsight.avg_time.label
                 type:          twig
                 template:      OkvpnMQInsightBundle:Column:avg.html.twig
                 frontend_type: html
             maxTime:
-                label: Max
+                label: okvpn.mqinsight.max_time.label
                 type:          twig
                 template:      OkvpnMQInsightBundle:Column:max.html.twig
                 frontend_type: html
             minTime:
-                label: Min
+                label: okvpn.mqinsight.min_time.label
                 type:          twig
                 template:      OkvpnMQInsightBundle:Column:min.html.twig
                 frontend_type: html
         options:
             toolbarOptions:
                 pageSize:
-                    items: [10]
-                    default_per_page: 10
+                    items: [15]
+                    default_per_page: 15

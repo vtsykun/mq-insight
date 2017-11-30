@@ -47,6 +47,14 @@ class AMQPQueueProviderExt implements QueueProviderInterface
         return $count;
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function getApproxQueueCount()
+    {
+        return $this->queueCount();
+    }
+
     protected function initialize()
     {
         if (null === $this->channel) {

@@ -11,4 +11,12 @@ class NullQueueProvider implements QueueProviderInterface
     {
         return 0;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getApproxQueueCount()
+    {
+        return 0;
+    }
 }

@@ -30,6 +30,14 @@ class DefaultQueueProvider implements QueueProviderInterface, RandomAccessQueueI
     /**
      * {@inheritdoc}
      */
+    public function getApproxQueueCount()
+    {
+        return $this->provider->getApproxQueueCount();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function deleteMessage($messageId)
     {
         if ($this->provider instanceof RandomAccessQueueInterface) {

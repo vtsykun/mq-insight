@@ -45,6 +45,18 @@ class MQStateRepository extends \Doctrine\ORM\EntityRepository
     }
 
     /**
+     * @return MQChangeStat|null
+     */
+    public function getLastValue()
+    {
+        $qb = $this->createQueryBuilder('s')
+            ->orderBy('s.id', 'DESC')
+            ->setMaxResults(1);
+
+        return $qb->getQuery()->getOneOrNullResult();
+    }
+
+    /**
      * @param \DateTime $fetchFrom
      * @return array
      */

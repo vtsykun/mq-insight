@@ -61,6 +61,14 @@ class AMQPQueueProvider implements QueueProviderInterface, AbstractConnectionAwa
     /**
      * {@inheritdoc}
      */
+    public function getApproxQueueCount()
+    {
+        return $this->queueCount();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function setConnection(ConnectionInterface $connection)
     {
         $this->connection = $connection;

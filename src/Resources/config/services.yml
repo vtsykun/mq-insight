@@ -5,7 +5,7 @@ services:
     okvpn_mq_insight.provider_dbal:
         class: Okvpn\Bundle\MQInsightBundle\Model\Provider\DbalQueueProvider
         public: false
-        arguments: ['@doctrine.orm.default_entity_manager']
+        arguments: ['@doctrine']
         tags:
             - { name: okvpn.mq_stat_provider, driver: dbal }
 

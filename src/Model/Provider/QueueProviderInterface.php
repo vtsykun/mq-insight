@@ -10,4 +10,11 @@ interface QueueProviderInterface
      * @return int
      */
     public function queueCount();
+
+    /**
+     * Return approximate number of messages in the queue for performance
+     *
+     * @return int
+     */
+    public function getApproxQueueCount();
 }

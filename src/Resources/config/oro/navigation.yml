@@ -2,7 +2,7 @@ navigation:
     menu_config:
         items:
             okvpn_message_queue:
-                label:    'Message queue'
+                label:    okvpn.mqinsight.menu_config.label
                 route:    'okvpn_mq_insight_status'
                 position: 62
                 extras:
@@ -17,4 +17,4 @@ navigation:
                             okvpn_message_queue: ~
 
     titles:
-        okvpn_mq_insight_status: 'Queue status'
+        okvpn_mq_insight_status: okvpn.mqinsight.menu_config.title

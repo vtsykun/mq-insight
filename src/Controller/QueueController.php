@@ -28,30 +28,33 @@ class QueueController extends Controller
         $fetchFrom->modify('-1 day');
         $data = $this->get('okvpn_mq_insight.chart_provider')->getQueueSizeData($fetchFrom);
 
+        $runningConsumers = ProcessManager::getPidsOfRunningProcess('oro:message-queue:consume');
+        /** @var MQStateStat $size */
+        $size = $this->get('doctrine')
+            ->getRepository('OkvpnMQInsightBundle:MQStateStat')
+            ->getLastValue();
+
+        $dailyStat = $this->get('okvpn_mq_insight.chart_provider')->getDailyStat();
+
         return [
             'entity' => new MQStateStat(),
             'sizeData' => $data,
-            'fetchFrom' => $fetchFrom->format('c')
+            'fetchFrom' => $fetchFrom->format('c'),
+            'running' => $runningConsumers,
+            'runningCount' => count($runningConsumers),
+            'size' => $size ? $size->getQueue() : null,
+            'dailyStat' => $dailyStat
         ];
     }
 
     /**
      * @Template()
-     * @Route("/info", name="okvpn_mq_insight_info")
+     * @Route("/info", name="okvpn_mq_insight_plot")
      * @AclAncestor("message_queue_view_stat")
      */
-    public function infoAction()
+    public function plotAction()
     {
-        $runningConsumers = ProcessManager::getPidsOfRunningProcess('oro:message-queue:consume');
-        $size = $this->get('okvpn_mq_insight.queue_provider')->queueCount();
-        $dailyStat = $this->get('okvpn_mq_insight.chart_provider')->getDailyStat();
-
-        return [
-            'running' => $runningConsumers,
-            'count' => count($runningConsumers),
-            'size' => $size,
-            'dailyStat' => $dailyStat
-        ];
+        return [];
     }
 
     /**
@@ -74,7 +77,7 @@ class QueueController extends Controller
             [
                 'runningConsumers' => $runningConsumers,
                 'queued' => $result,
-                'size' => $this->get('okvpn_mq_insight.queue_provider')->queueCount()
+                'size' => $this->get('okvpn_mq_insight.queue_provider')->getApproxQueueCount()
             ]
         );
     }

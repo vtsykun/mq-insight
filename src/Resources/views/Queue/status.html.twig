@@ -1,17 +1,31 @@
 {% extends 'OroUIBundle:actions:view.html.twig' %}
 {% import 'OroDataGridBundle::macros.html.twig' as dataGrid %}
+{% import 'OroUIBundle::macros.html.twig' as ui %}
 
 {% block stats %}{% endblock %}
 
 {% block content_data %}
     <link rel="stylesheet" href="{{ asset('bundles/okvpnmqinsight/css/c3.min.css') }}">
 
-    {% set mainInfo %}
+    {% set generalInformation %}
+    <div class="widget-content">
+        <b>Statistics for the previous 24 hour period.</b>
+        <div class="row-fluid form-horizontal contact-info">
+            {{ ui.renderHtmlProperty('okvpn.mqinsight.queue_size'|trans, size) }}
+            {{ ui.renderHtmlProperty('okvpn.mqinsight.avg_queue_size'|trans, dailyStat.avgSize|round) }}
+            {{ ui.renderHtmlProperty('okvpn.mqinsight.consumers'|trans, runningCount) }}
+            {{ ui.renderHtmlProperty('okvpn.mqinsight.added_to_route'|trans, dailyStat.added|number_format) }}
+            {{ ui.renderHtmlProperty('okvpn.mqinsight.processed'|trans, dailyStat.removed|number_format) }}
+            {{ ui.renderHtmlProperty('okvpn.mqinsight.errors'|trans, dailyStat.error) }}
+        </div>
+    </div>
+    {% endset %}
+
+    {% set plotInfo %}
         {{ oro_widget_render({
             'widgetType': 'block',
             'contentClasses': [],
-            'url': path('okvpn_mq_insight_info'),
-            'title': 'Summary of queue statistics for the previous 24 hour period.'
+            'url': path('okvpn_mq_insight_plot')
         }) }}
     {% endset %}
 
@@ -20,7 +34,7 @@
     {% endset %}
 
     {% set gridProcessor %}
-        <b >Processor statistics for the previous 24 hour period.</b>
+        <b>Processor statistics for the previous 24 hour period.</b>
         {{ dataGrid.renderGrid('message-queue-processor-grid', {created: fetchFrom}) }}
     {% endset %}
 
@@ -29,7 +43,13 @@
             'title': 'General Information'|trans,
             'class': 'active',
             'subblocks': [
-                {'data' : [mainInfo] },
+                {'data' : [generalInformation] }
+            ]
+        },
+        {
+            'title': 'Online charts',
+            'subblocks': [
+                {'data' : [plotInfo] },
                 {'data' : [gridProcessor]}
             ]
         }
@@ -66,4 +86,3 @@
 
     {{ parent() }}
 {% endblock %}
-

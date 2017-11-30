@@ -1,7 +1,7 @@
 acls:
     message_queue_view_stat:
-        label: View message queue statistics
-        description: View message queue statistics
+        label: okvpn.mqinsight.view_message_queue.label
+        description: okvpn.mqinsight.view_message_queue.description
         type: action
         group_name: ""
         category: "application"

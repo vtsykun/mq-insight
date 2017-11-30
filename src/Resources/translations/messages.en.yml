@@ -1,0 +1,24 @@
+okvpn:
+    mqinsight:
+        queue_size: Queue size
+        avg_queue_size: Avg. queue size
+        consumers: Consumers
+        added_to_route: Added to route
+        processed: Processed
+        errors: Errors
+        processor.label: Processor
+        ack.label: Ack
+        reject.label: Reject
+        requeue.label: Requeue
+        avg_time.label: Avg.
+        max_time.label: Max.
+        min_time.label: Min.
+        view_message_queue.label: View message queue statistics
+        view_message_queue.description: Allow view message queue statistics and logs.
+        menu_config:
+            title: Message queue statistics
+            label: Message queue
+        view:
+
+            grid_by_processor_label: Processor statistics for the previous 24 hour period
+            chart: Online charts
