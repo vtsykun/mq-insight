@@ -30,10 +30,14 @@ define(function(require) {
 
             this._el = options._sourceElement.find(this.options.widget);
             this.initChart();
-            setInterval(
+            var plotRefresh = setInterval(
                 _.bind(function () {
                     if (this.chart === null) {
                         return null;
+                    }
+
+                    if ($(this.options.widget).length === 0) {
+                        clearInterval(plotRefresh);
                     }
 
                     $.post(

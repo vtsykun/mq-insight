@@ -1,0 +1,10 @@
+placeholders:
+    placeholders:
+        requirejs_config_extend:
+            items:
+                okvpn_mq_requirejs_config:
+                    order: 120
+
+    items:
+       okvpn_mq_requirejs_config:
+           template: OkvpnMQInsightBundle::requirejs.config.js.twig
