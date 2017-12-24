@@ -1,6 +1,6 @@
 {
     "name":"okvpn/mq-insight",
-    "type":"Symfony Bundle",
+    "type":"symfony-bundle",
     "homepage": "https://github.com/vtsykun/mq-insight",
     "license":"MIT",
     "description": "Message queue statistics for OroPlatform",
