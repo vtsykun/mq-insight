@@ -71,7 +71,8 @@ class FileSystemStorage implements KeyValueStorageInterface
     protected function init()
     {
         if (!file_exists($this->fileNameDir)) {
-            @mkdir($this->fileNameDir, 0777);
+            @mkdir($this->fileNameDir, 0777, true);
+            @chmod($this->fileNameDir, 0777);
         }
     }
 
