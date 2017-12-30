@@ -45,7 +45,7 @@ class DbalQueueProvider implements QueueProviderInterface, RandomAccessQueueInte
             $lastValue = $this->registry->getRepository('OkvpnMQInsightBundle:MQStateStat')
                 ->getLastValue();
 
-            if ($lastValue instanceof MQStateStat && $lastValue->getQueue() > 10000) {
+            if ($lastValue instanceof MQStateStat && $lastValue->getQueue() > 500000) {
 
                 /*
                  * Fast estimated row count.
