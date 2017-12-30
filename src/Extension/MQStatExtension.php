@@ -7,6 +7,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Okvpn\Bundle\MQInsightBundle\Client\DebugProducerInterface;
 use Okvpn\Bundle\MQInsightBundle\Command\StatRetrieveCommand;
 use Okvpn\Bundle\MQInsightBundle\Manager\ProcessManager;
+use Okvpn\Bundle\MQInsightBundle\Model\AppConfig;
 use Okvpn\Bundle\MQInsightBundle\Model\Counter;
 use Okvpn\Bundle\MQInsightBundle\Model\Worker\CallbackTask;
 use Okvpn\Bundle\MQInsightBundle\Model\Worker\DelayPool;
@@ -123,6 +124,9 @@ class MQStatExtension extends AbstractExtension
                 $uid = $message ? $message->getMessageId() : null;
                 $this->publishErrorStat($context->getException(), $name, $uid);
             }
+
+            $provider = $this->container->get('okvpn_mq_insight.queued_messages_provider');
+            $provider->flush(getmypid());
         } catch (\Exception $e) {
             // do nothing
         } finally {
@@ -266,7 +270,7 @@ class MQStatExtension extends AbstractExtension
     {
         if (!getenv('SKIP_STAT_RETRIEVE')
             && !$this->container->getParameter('okvpn_mq_insight.skip_stat_retrieve')
-            && !ProcessManager::isProcessRunning(StatRetrieveCommand::NAME)
+            && !ProcessManager::isProcessRunning(StatRetrieveCommand::NAME . ' ' . AppConfig::getApplicationID())
         ) {
             $env = $this->container->get('kernel')->getEnvironment();
             $pb = new ProcessBuilder();
@@ -277,6 +281,7 @@ class MQStatExtension extends AbstractExtension
                 ->add($phpPath)
                 ->add($_SERVER['argv'][0])
                 ->add(StatRetrieveCommand::NAME)
+                ->add(AppConfig::getApplicationID())
                 ->add(getmypid())
                 ->add("--env=$env");
 

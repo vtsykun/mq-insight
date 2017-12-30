@@ -28,7 +28,10 @@ class QueueController extends Controller
         $fetchFrom->modify('-1 day');
         $data = $this->get('okvpn_mq_insight.chart_provider')->getQueueSizeData($fetchFrom);
 
+        $provider = $this->get('okvpn_mq_insight.queued_messages_provider');
         $runningConsumers = ProcessManager::getPidsOfRunningProcess('oro:message-queue:consume');
+        $runningConsumers = $provider->filterNotActivePids($runningConsumers);
+
         /** @var MQStateStat $size */
         $size = $this->get('doctrine')
             ->getRepository('OkvpnMQInsightBundle:MQStateStat')
@@ -66,9 +69,13 @@ class QueueController extends Controller
      */
     public function queuedAction(Request $request)
     {
-        $result = $this->get('okvpn_mq_insight.queued_messages_provider')->getQueuedMessages();
+        $provider = $this->get('okvpn_mq_insight.queued_messages_provider');
+        $result = $provider->getQueuedMessages();
 
-        $runningConsumers = ProcessManager::getPidsOfRunningProcess('oro:message-queue:consume');
+        $runningConsumers = $provider->filterNotActivePids(
+            ProcessManager::getPidsOfRunningProcess('oro:message-queue:consume')
+        );
+
         if ($request->get('isLast')) {
             $result = end($result) ?: [];
         }

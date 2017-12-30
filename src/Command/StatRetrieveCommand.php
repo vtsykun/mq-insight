@@ -4,6 +4,7 @@ namespace Okvpn\Bundle\MQInsightBundle\Command;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Types\Type;
+use Okvpn\Bundle\MQInsightBundle\Exception\TerminateCommandException;
 use Okvpn\Bundle\MQInsightBundle\Manager\ProcessManager;
 use Okvpn\Bundle\MQInsightBundle\Model\AppConfig;
 use Okvpn\Bundle\MQInsightBundle\Model\Provider\QueueProviderInterface;
@@ -47,6 +48,7 @@ class StatRetrieveCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this->setName(self::NAME)
+            ->addArgument('application', InputArgument::REQUIRED)
             ->addArgument('parentPid', InputArgument::REQUIRED)
             ->addOption('pollingInterval', null, InputOption::VALUE_OPTIONAL, 'The polling interval in sec.')
             ->setDescription('Retrieve message count statistics');
@@ -91,7 +93,6 @@ class StatRetrieveCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $shmid = function_exists('sem_get') ? sem_get(AppConfig::getApplicationID()) : null;
-
         if ($shmid && !sem_acquire($shmid, true)) {
             $output->writeln('<info>Not allowed to run a more one command.</info>');
             return 0;
@@ -103,9 +104,13 @@ class StatRetrieveCommand extends ContainerAwareCommand
                 $this->delayPool->sync();
                 sleep(1);
             }
+        } catch (TerminateCommandException $exception) {
+            $output->writeln('<error>' . $exception->getMessage() .'</error>');
+            return 1;
         } finally {
             if ($shmid) {
-                sem_release($shmid);
+                @sem_release($shmid);
+                @sem_remove($shmid);
             }
         }
 
@@ -136,16 +141,12 @@ class StatRetrieveCommand extends ContainerAwareCommand
     protected function terminateIfNeeded()
     {
         $message = '';
-        if (ProcessManager::getNumberOfRunningProcess(self::NAME) > 1) {
-            $message .= "Running more than one instance StatRetrieveCommand\n";
-        }
-
         if (ProcessManager::getProcessNameByPid($this->parentPid) === '') {
-            $message = "The parent process died. Parent pid not found:{$this->parentPid}\n";
+            $message = "The parent process died. Parent pid not found: {$this->parentPid}\n";
         }
 
         if ($message) {
-            throw new \RuntimeException($message);
+            throw new TerminateCommandException($message);
         }
     }
 }
