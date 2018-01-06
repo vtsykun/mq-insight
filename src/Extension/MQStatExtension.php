@@ -270,7 +270,7 @@ class MQStatExtension extends AbstractExtension
     {
         if (!getenv('SKIP_STAT_RETRIEVE')
             && !$this->container->getParameter('okvpn_mq_insight.skip_stat_retrieve')
-            && !ProcessManager::isProcessRunning(StatRetrieveCommand::NAME . ' ' . AppConfig::getApplicationID())
+            && !ProcessManager::isProcessRunning(sprintf("'%s'", StatRetrieveCommand::NAME . ' ' . AppConfig::getApplicationID()))
         ) {
             $env = $this->container->get('kernel')->getEnvironment();
             $pb = new ProcessBuilder();
