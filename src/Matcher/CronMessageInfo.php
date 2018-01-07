@@ -22,9 +22,7 @@ final class CronMessageInfo implements MessageInfoInterface
     {
         $marker = $this->wrapped->getMarker($message);
 
-        if ('oro_cron.async.command_runner_message_processor' == $marker
-            || 'oro_cron.async.command_runner_processor' == $marker
-        ) {
+        if ('oro_cron.async.command_runner_processor' == $marker) {
             $body = $message->getBody();
             $body = json_decode($body, true);
 
