@@ -41,3 +41,18 @@ services:
     okvpn_mq_insight.queued_messages_provider:
         class: Okvpn\Bundle\MQInsightBundle\Provider\QueuedMessagesProvider
         arguments: ['@okvpn_mq_insight.storage']
+
+    okvpn_mq_insight.message_info.default:
+        class: Okvpn\Bundle\MQInsightBundle\Matcher\OriginMessageInfo
+
+    okvpn_mq_insight.message_info.cron:
+        class: Okvpn\Bundle\MQInsightBundle\Matcher\CronMessageInfo
+        decorates: okvpn_mq_insight.message_info.default
+        decoration_priority: 10
+        arguments: ['@okvpn_mq_insight.message_info.cron.inner']
+
+    okvpn_mq_insight.message_info.workflow_trigger:
+        class: Okvpn\Bundle\MQInsightBundle\Matcher\ProcessTriggerMessageInfo
+        decorates: okvpn_mq_insight.message_info.default
+        decoration_priority: 5
+        arguments: ['@okvpn_mq_insight.message_info.workflow_trigger.inner']

@@ -33,7 +33,7 @@ class ProcessorStatRepository extends \Doctrine\ORM\EntityRepository
                 ->groupBy('p.name')
                 ->orderBy('totalTime', 'DESC')
                 ->having('SUM(p.avgTime*(p.ack + p.reject + p.requeue))/(:sumTime) > 0.005')
-                ->setMaxResults(11)
+                ->setMaxResults(15)
                 ->setParameter('from', $from)
                 ->setParameter('sumTime', $sumTime);
 

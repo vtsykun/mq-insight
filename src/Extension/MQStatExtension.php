@@ -7,6 +7,9 @@ use Doctrine\ORM\EntityManagerInterface;
 use Okvpn\Bundle\MQInsightBundle\Client\DebugProducerInterface;
 use Okvpn\Bundle\MQInsightBundle\Command\StatRetrieveCommand;
 use Okvpn\Bundle\MQInsightBundle\Manager\ProcessManager;
+use Okvpn\Bundle\MQInsightBundle\Matcher\CronMessageInfo;
+use Okvpn\Bundle\MQInsightBundle\Matcher\OriginMessageInfo;
+use Okvpn\Bundle\MQInsightBundle\Matcher\ProcessTriggerMessageInfo;
 use Okvpn\Bundle\MQInsightBundle\Model\AppConfig;
 use Okvpn\Bundle\MQInsightBundle\Model\Counter;
 use Okvpn\Bundle\MQInsightBundle\Model\Worker\CallbackTask;
@@ -105,8 +108,10 @@ class MQStatExtension extends AbstractExtension
     {
         $message = $context->getMessage();
         if (null !== $message) {
+            $messageInfo = $this->container->get('okvpn_mq_insight.message_info.default');
+
             $this->processRecord(
-                $message->getProperty(Config::PARAMETER_PROCESSOR_NAME),
+                $messageInfo->getMarker($message),
                 $context->getStatus(),
                 microtime(true) - $this->start
             );
