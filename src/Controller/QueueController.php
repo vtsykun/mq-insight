@@ -61,6 +61,29 @@ class QueueController extends Controller
     }
 
     /**
+     * @Template()
+     * @Route("/pie-chart", name="okvpn_mq_insight_pie_chart")
+     * @AclAncestor("message_queue_view_stat")
+     */
+    public function pieChartAction()
+    {
+        $fetchFrom = new \DateTime();
+        $fetchFrom->modify('-1 day');
+
+        $repository = $this->get('doctrine')->getRepository('OkvpnMQInsightBundle:ProcessorStat');
+        $data = $repository->summaryStat($fetchFrom);
+
+        $pieData = [];
+        foreach ($data as $value) {
+            $pieData[] = [$value['name'], $value['totalTime']];
+        }
+
+        return [
+            'pieData' => $pieData
+        ];
+    }
+
+    /**
      * @Route("/queued", name="okvpn_mq_insight_queued")
      * @AclAncestor("message_queue_view_stat")
      *
