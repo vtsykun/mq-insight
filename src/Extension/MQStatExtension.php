@@ -105,8 +105,10 @@ class MQStatExtension extends AbstractExtension
     {
         $message = $context->getMessage();
         if (null !== $message) {
+            $messageInfo = $this->container->get('okvpn_mq_insight.message_info.default');
+
             $this->processRecord(
-                $message->getProperty(Config::PARAMETER_PROCESSOR_NAME),
+                $messageInfo->getMarker($message),
                 $context->getStatus(),
                 microtime(true) - $this->start
             );
