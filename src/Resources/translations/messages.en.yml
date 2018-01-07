@@ -24,3 +24,4 @@ okvpn:
             chart: Online charts
             running: Running
             stopped: Stopped
+            pie_chart: An estimation of spent time distribution amongst the processors

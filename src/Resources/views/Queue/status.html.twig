@@ -37,6 +37,14 @@
     </div>
     {% endset %}
 
+    {% set pieChart %}
+        {{ oro_widget_render({
+            'widgetType': 'block',
+            'contentClasses': [],
+            'url': path('okvpn_mq_insight_pie_chart')
+        }) }}
+    {% endset %}
+
     {% set plotInfo %}
         {{ oro_widget_render({
             'widgetType': 'block',
@@ -59,14 +67,15 @@
             'title': 'General Information'|trans,
             'class': 'active',
             'subblocks': [
-                {'data' : [generalInformation] }
+                {'data' : [generalInformation] },
+                {'data' : [gridProcessor] }
             ]
         },
         {
             'title': 'okvpn.mqinsight.view.chart'|trans,
             'subblocks': [
                 {'data' : [plotInfo] },
-                {'data' : [gridProcessor]}
+                {'data' : [pieChart]}
             ]
         }
     ] %}

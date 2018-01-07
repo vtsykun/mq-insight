@@ -87,6 +87,14 @@ class MQStatExtension extends AbstractExtension
      */
     public function onPreReceived(Context $context)
     {
+        if (null !== $this->start) {
+            $this->processRecord(
+                'system',
+                MessageProcessorInterface::ACK,
+                microtime(true) - $this->start
+            );
+        }
+
         $this->start = microtime(true);
     }
 
@@ -95,8 +103,16 @@ class MQStatExtension extends AbstractExtension
      */
     public function onPostReceived(Context $context)
     {
-        $long = microtime(true) - $this->start;
-        $this->processRecord($context, $long);
+        $message = $context->getMessage();
+        if (null !== $message) {
+            $this->processRecord(
+                $message->getProperty(Config::PARAMETER_PROCESSOR_NAME),
+                $context->getStatus(),
+                microtime(true) - $this->start
+            );
+        }
+
+        $this->start = microtime(true);
         $this->counter->tickAll();
 
         $this->sync();
@@ -107,7 +123,16 @@ class MQStatExtension extends AbstractExtension
      */
     public function onIdle(Context $context)
     {
+        if (null !== $this->start) {
+            $this->processRecord(
+                'idle',
+                MessageProcessorInterface::ACK,
+                microtime(true) - $this->start
+            );
+        }
+
         $this->sync();
+        $this->start = microtime(true);
     }
 
     /**
@@ -156,17 +181,12 @@ class MQStatExtension extends AbstractExtension
     }
 
     /**
-     * @param Context $context
+     * @param string $name
+     * @param string $status
      * @param float $long
      */
-    protected function processRecord(Context $context, $long)
+    protected function processRecord($name, $status, $long)
     {
-        $message = $context->getMessage();
-        if (null === $message) {
-            return;
-        }
-
-        $name = $message->getProperty(Config::PARAMETER_PROCESSOR_NAME);
         if (!array_key_exists($name, $this->stats)) {
             $this->stats[$name] = [
                 'ack' => 0,
@@ -179,7 +199,7 @@ class MQStatExtension extends AbstractExtension
         }
 
         $total = $this->stats[$name]['ack'] + $this->stats[$name]['requeue'] + $this->stats[$name]['reject'];
-        switch ($context->getStatus()) {
+        switch ($status) {
             case MessageProcessorInterface::ACK:
                 $this->stats[$name]['ack']++;
                 break;
@@ -188,6 +208,9 @@ class MQStatExtension extends AbstractExtension
                 break;
             case MessageProcessorInterface::REQUEUE:
                 $this->stats[$name]['requeue']++;
+                break;
+            default:
+                $this->stats[$name]['ack']++;
                 break;
         }
 

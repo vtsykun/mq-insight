@@ -1,0 +1,21 @@
+<div class="widget-content">
+    <b>{{ 'okvpn.mqinsight.view.pie_chart'|trans }}</b>
+    <div id="chart"></div>
+</div>
+<script>
+    setTimeout(function () {
+        require(['d3', 'c3'], function(d3, c3) {
+            var columns = [];
+            columns = {{ pieData|json_encode|raw }};
+            if (typeof columns[0] !== 'undefined') {
+                c3.generate({
+                    data: {
+                        bindto: 'chart',
+                        columns: columns,
+                        type : 'pie'
+                    }
+                });
+            }
+        });
+    }, 1500);
+</script>

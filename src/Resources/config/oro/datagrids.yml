@@ -72,6 +72,7 @@ datagrids:
                 where:
                     and:
                         - p.created > :created
+                        - p.name NOT IN ('idle', 'system')
                 groupBy: p.name
             bind_parameters:
                 created: created
