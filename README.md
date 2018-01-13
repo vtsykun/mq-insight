@@ -18,6 +18,9 @@ composer require okvpn/mq-insight dev-master
 * Delete invalid message from queue
 * Support dbal and amqp driver
 
+## Demo
+See our [Administration Demo](http://demo.oroinc.me/insight/queue-status/). The credentials are prefilled, just click Log in
+
 ## Non-mandatory requirements
 
 * This package requires Unix/Linux (Window supported partly) with `ps` utils
