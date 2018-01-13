@@ -60,6 +60,9 @@
     {% set gridProcessor %}
         <b>{{ 'okvpn.mqinsight.view.grid_by_processor_label'|trans }}</b>
         {{ dataGrid.renderGrid('message-queue-processor-grid', {created: fetchFrom}) }}
+        <p style="font-size: 0.9em">"Min", "Max", "Avg" - the execution time in seconds <br>
+            "Total" - The 24 hour aggregate time in minutes
+        </p>
     {% endset %}
 
     {% set dataBlocks = [

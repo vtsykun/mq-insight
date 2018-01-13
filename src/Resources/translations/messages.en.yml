@@ -13,7 +13,7 @@ okvpn:
         avg_time.label: Avg.
         max_time.label: Max.
         min_time.label: Min.
-        total_time.label: Sum (min.)
+        total_time.label: Total
         view_message_queue.label: View message queue statistics
         view_message_queue.description: Allow view message queue statistics and logs.
         menu_config:
