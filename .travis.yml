@@ -45,6 +45,6 @@ before_install:
 
 script:
     - cp tests/phpunit.xml.dist tests/platform/phpunit.xml
-#    - cd tests/platform
+    - cd tests/platform
     - export SYMFONY_DEPRECATIONS_HELPER=disabled
     - php bin/phpunit --testsuite=functional
