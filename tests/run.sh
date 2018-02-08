@@ -17,6 +17,9 @@ case ${STEP} in
         mkdir -p platform/src/Okvpn/Bundle/
         popd
         ln -s "$PWD/src" tests/platform/src/Okvpn/Bundle/MQInsightBundle
+
+        # for 2.0 capability
+        composer global require fxp/composer-asset-plugin
     ;;
     install)
         cd tests/platform
