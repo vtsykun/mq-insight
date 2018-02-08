@@ -35,7 +35,7 @@ matrix:
 before_install:
     - phpenv config-rm xdebug.ini || echo "xdebug not available"
     - composer
-#    - ./tests/run.sh before_install
+    - bash tests/run.sh before_install
 #
 #install:
 #    - ./tests/run.sh install
