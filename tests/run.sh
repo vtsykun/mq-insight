@@ -42,9 +42,16 @@ case ${STEP} in
     ;;
     before_script)
         cd tests/platform
+
+        START=`date +%s`
         php app/console oro:install --env test  --user-name=admin \
             --user-email=admin@example.com --user-firstname=John --user-lastname=Doe --user-password=admin \
             --sample-data=n --organization-name=OroCRM --no-interaction --application-url="http://localhost/" \
             --skip-assets --timeout 600;
+
+        END=`date +%s`
+        SECONDS=$(($END-$START))
+
+        echo "Installation time - $(($SECONDS/60)) minutes $(($SECONDS%60)) seconds"
     ;;
 esac
