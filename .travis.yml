@@ -12,16 +12,16 @@ branches:
     - master
     - 1.0
 
-#addons:
-#  postgresql: "9.5"
-#
-#services:
-#  - mysql
-#  - postgresql
-#
-#env:
-#  global:
-#     - secure: "MvXPq1nXAuJ3ICLX7jGCtrArqFcQbCc9Jw1TJP0r2OxKQ7XniyXfO/SlcvkYKDqQKg4Du7HXr0Xt7cDYoVeSrQDGHVRRxYdAGr0w4akCzZqliHPxOTGlE4Q+jc4sKnPT/BRBrPm4/wWgtyY7pBj0cUjWYVncV3/YktRFPC8cZ+eubzSJr24KD46TflP+WgAQbUh15tbYeGxOrjNMUHRHwFA3DiX6pbGyjUebQbXwruX7WuxU3HbE18IZXoAFJ6LtvUF0t4XEeHdhX8XeJ2GEZzKm8lJb97Fy/GQgAriiNu8ajCv0raEVlV/466CdxwtmB6NZ47CIisAGdhr0N+7BdCe9DkDp9YxTH5ueCMD3RrTqIqc/Wfj2/XUSIk7yxuYYjtwrcdiZJxXwd+iA/49wDuMbvmWJLumd+5tD+dUERuHQKDYyvS2JaNEeQZmEpCHdhCKGvYoSll9qSxjlvkkwt/MDh1kMCR03mOL2ViItRG2mH0xLhInYhU72TTLHB2lWuEJjYuLLfUDv1xxQBid/MiKkjEGeZLFJbGD9NbYsRjCKX/hEbNmVSXCm/rNW1cQHm2i3sYNd3fGLnttVZKzhonN+sPyknfLKJU9xLtjQRczMZVh3Ue+XySEJkDKRsRJa1KYTRTdahZxknHt9LX4zQCSZNy5PTycUl+A9DdwGbvw="
+addons:
+  postgresql: "9.5"
+
+services:
+  - mysql
+  - postgresql
+
+env:
+  global:
+     - secure: "MvXPq1nXAuJ3ICLX7jGCtrArqFcQbCc9Jw1TJP0r2OxKQ7XniyXfO/SlcvkYKDqQKg4Du7HXr0Xt7cDYoVeSrQDGHVRRxYdAGr0w4akCzZqliHPxOTGlE4Q+jc4sKnPT/BRBrPm4/wWgtyY7pBj0cUjWYVncV3/YktRFPC8cZ+eubzSJr24KD46TflP+WgAQbUh15tbYeGxOrjNMUHRHwFA3DiX6pbGyjUebQbXwruX7WuxU3HbE18IZXoAFJ6LtvUF0t4XEeHdhX8XeJ2GEZzKm8lJb97Fy/GQgAriiNu8ajCv0raEVlV/466CdxwtmB6NZ47CIisAGdhr0N+7BdCe9DkDp9YxTH5ueCMD3RrTqIqc/Wfj2/XUSIk7yxuYYjtwrcdiZJxXwd+iA/49wDuMbvmWJLumd+5tD+dUERuHQKDYyvS2JaNEeQZmEpCHdhCKGvYoSll9qSxjlvkkwt/MDh1kMCR03mOL2ViItRG2mH0xLhInYhU72TTLHB2lWuEJjYuLLfUDv1xxQBid/MiKkjEGeZLFJbGD9NbYsRjCKX/hEbNmVSXCm/rNW1cQHm2i3sYNd3fGLnttVZKzhonN+sPyknfLKJU9xLtjQRczMZVh3Ue+XySEJkDKRsRJa1KYTRTdahZxknHt9LX4zQCSZNy5PTycUl+A9DdwGbvw="
 
 matrix:
   include:
