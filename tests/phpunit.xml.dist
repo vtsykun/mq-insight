@@ -28,7 +28,7 @@
         verbose="false">
     <testsuites>
         <testsuite name="functional">
-            <directory suffix="Test.php">/src/Okvpn/Bundle/*/Tests/Functional</directory>
+            <directory suffix="Test.php">src/Okvpn/Bundle/*/Tests/Functional</directory>
         </testsuite>
     </testsuites>
     <php>
