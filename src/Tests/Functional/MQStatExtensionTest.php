@@ -45,21 +45,6 @@ class MQStatExtensionTest extends WebTestCase
             );
         }
 
-        $route = $container->get('oro_message_queue.client.router');
-        $route->addRoute('okvpn.null.topic1', 'okvpn.null.topic1', Config::DEFAULT_QUEUE_NAME);
-        $route->addRoute('okvpn.null.topic2', 'okvpn.null.topic2', Config::DEFAULT_QUEUE_NAME);
-        $route->addRoute('okvpn.null.topic3', 'okvpn.null.topic3', Config::DEFAULT_QUEUE_NAME);
-
-        $avgWait = 10; //10 ms.
-        $container->set('okvpn.null.topic1', new WaitTestMessageProcessor($avgWait));
-        $container->set('okvpn.null.topic2', new WaitTestMessageProcessor(2 * $avgWait));
-        $container->set('okvpn.null.topic3', new WaitTestMessageProcessor(5 * $avgWait));
-
-        $processorRegistry = $container->get('oro_message_queue.client.message_processor_registry');
-        $processorRegistry->set('okvpn.null.topic1', 'okvpn.null.topic1');
-        $processorRegistry->set('okvpn.null.topic2', 'okvpn.null.topic2');
-        $processorRegistry->set('okvpn.null.topic3', 'okvpn.null.topic3');
-
         $extensions[] = new LoggerExtension(new NullLogger());
         $extensions[] = new StopConsumerTestExtension();
 
@@ -120,7 +105,7 @@ class MQStatExtensionTest extends WebTestCase
             ],
             'test3' => [
                 'messages' => [
-                    ['okvpn.null.topic3', 1000]
+                    ['topic_okvpn.null.topic3', 1000]
                 ],
                 'expected' => [
                     ['okvpn.null.topic3', 1000, 1],
@@ -130,13 +115,13 @@ class MQStatExtensionTest extends WebTestCase
             ],
             'test4' => [
                 'messages' => [
-                    ['okvpn.null.topic3', 10],
-                    ['okvpn.null.topic3', 10],
-                    ['okvpn.null.topic3', 10],
-                    ['okvpn.null.topic3', 10],
-                    ['okvpn.null.topic3', 10],
-                    ['okvpn.null.topic3', 10],
-                    ['okvpn.null.topic3', 10],
+                    ['topic_okvpn.null.topic3', 10],
+                    ['topic_okvpn.null.topic3', 10],
+                    ['topic_okvpn.null.topic3', 10],
+                    ['topic_okvpn.null.topic3', 10],
+                    ['topic_okvpn.null.topic3', 10],
+                    ['topic_okvpn.null.topic3', 10],
+                    ['topic_okvpn.null.topic3', 10],
                     ['okvpn.null.topic2', 50],
                 ],
                 'expected' => [

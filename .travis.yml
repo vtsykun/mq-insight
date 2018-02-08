@@ -1,6 +1,7 @@
 sudo: false
 
 language: php
+dist: trusty
 
 branches:
   only:
@@ -32,6 +33,8 @@ matrix:
 #      env: DATABASE="postgresql" ORO_PLATFORM="2.6.1"
 
 before_install:
+    - stty cols 120
+    - phpenv config-rm xdebug.ini || echo "xdebug not available"
     - ./tests/run.sh before_install
 
 install:

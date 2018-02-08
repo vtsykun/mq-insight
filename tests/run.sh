@@ -38,7 +38,6 @@ case ${STEP} in
         esac
     ;;
     before_script)
-        phpenv config-rm xdebug.ini
         cd tests/platform
         php app/console oro:install --env test  --user-name=admin \
             --user-email=admin@example.com --user-firstname=John --user-lastname=Doe --user-password=admin \
