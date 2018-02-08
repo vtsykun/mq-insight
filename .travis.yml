@@ -12,21 +12,24 @@ branches:
     - master
     - 1.0
 
-addons:
-  postgresql: "9.5"
+php:
+  - 7.1
 
-services:
-  - mysql
-  - postgresql
+#addons:
+#  postgresql: "9.5"
+#
+#services:
+#  - mysql
+#  - postgresql
+#
+#env:
+#  global:
+#     - secure: "MvXPq1nXAuJ3ICLX7jGCtrArqFcQbCc9Jw1TJP0r2OxKQ7XniyXfO/SlcvkYKDqQKg4Du7HXr0Xt7cDYoVeSrQDGHVRRxYdAGr0w4akCzZqliHPxOTGlE4Q+jc4sKnPT/BRBrPm4/wWgtyY7pBj0cUjWYVncV3/YktRFPC8cZ+eubzSJr24KD46TflP+WgAQbUh15tbYeGxOrjNMUHRHwFA3DiX6pbGyjUebQbXwruX7WuxU3HbE18IZXoAFJ6LtvUF0t4XEeHdhX8XeJ2GEZzKm8lJb97Fy/GQgAriiNu8ajCv0raEVlV/466CdxwtmB6NZ47CIisAGdhr0N+7BdCe9DkDp9YxTH5ueCMD3RrTqIqc/Wfj2/XUSIk7yxuYYjtwrcdiZJxXwd+iA/49wDuMbvmWJLumd+5tD+dUERuHQKDYyvS2JaNEeQZmEpCHdhCKGvYoSll9qSxjlvkkwt/MDh1kMCR03mOL2ViItRG2mH0xLhInYhU72TTLHB2lWuEJjYuLLfUDv1xxQBid/MiKkjEGeZLFJbGD9NbYsRjCKX/hEbNmVSXCm/rNW1cQHm2i3sYNd3fGLnttVZKzhonN+sPyknfLKJU9xLtjQRczMZVh3Ue+XySEJkDKRsRJa1KYTRTdahZxknHt9LX4zQCSZNy5PTycUl+A9DdwGbvw="
 
-env:
-  global:
-     - secure: "MvXPq1nXAuJ3ICLX7jGCtrArqFcQbCc9Jw1TJP0r2OxKQ7XniyXfO/SlcvkYKDqQKg4Du7HXr0Xt7cDYoVeSrQDGHVRRxYdAGr0w4akCzZqliHPxOTGlE4Q+jc4sKnPT/BRBrPm4/wWgtyY7pBj0cUjWYVncV3/YktRFPC8cZ+eubzSJr24KD46TflP+WgAQbUh15tbYeGxOrjNMUHRHwFA3DiX6pbGyjUebQbXwruX7WuxU3HbE18IZXoAFJ6LtvUF0t4XEeHdhX8XeJ2GEZzKm8lJb97Fy/GQgAriiNu8ajCv0raEVlV/466CdxwtmB6NZ47CIisAGdhr0N+7BdCe9DkDp9YxTH5ueCMD3RrTqIqc/Wfj2/XUSIk7yxuYYjtwrcdiZJxXwd+iA/49wDuMbvmWJLumd+5tD+dUERuHQKDYyvS2JaNEeQZmEpCHdhCKGvYoSll9qSxjlvkkwt/MDh1kMCR03mOL2ViItRG2mH0xLhInYhU72TTLHB2lWuEJjYuLLfUDv1xxQBid/MiKkjEGeZLFJbGD9NbYsRjCKX/hEbNmVSXCm/rNW1cQHm2i3sYNd3fGLnttVZKzhonN+sPyknfLKJU9xLtjQRczMZVh3Ue+XySEJkDKRsRJa1KYTRTdahZxknHt9LX4zQCSZNy5PTycUl+A9DdwGbvw="
-
-matrix:
-  include:
-    - php: 7.1
-      env: DATABASE="postgresql" ORO_PLATFORM="2.3.12"
+#matrix:
+#  include:
+#    - php: 7.1
+#      env: DATABASE="postgresql" ORO_PLATFORM="2.3.12"
 #    - php: 7.0
 #      env: DATABASE="mysql" ORO_PLATFORM="2.0.20"
 #    - php: 7.1
@@ -35,16 +38,16 @@ matrix:
 before_install:
     - phpenv config-rm xdebug.ini || echo "xdebug not available"
     - composer
-    - ./tests/run.sh before_install
+#    - ./tests/run.sh before_install
+#
+#install:
+#    - ./tests/run.sh install
 
-install:
-    - ./tests/run.sh install
-
-before_script:
-    - ./tests/run.sh before_script
+#before_script:
+#    - ./tests/run.sh before_script
 
 script:
     - cp tests/phpunit.xml.dist tests/platform/phpunit.xml
-    - cd tests/platform
+#    - cd tests/platform
     - export SYMFONY_DEPRECATIONS_HELPER=disabled
     - php bin/phpunit --testsuite=functional
