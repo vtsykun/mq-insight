@@ -25,11 +25,11 @@ env:
 matrix:
   include:
     - php: 7.1
-      env: DATABASE="postgres" ORO_PLATFORM="2.3.12"
+      env: DATABASE="postgresql" ORO_PLATFORM="2.3.12"
 #    - php: 7.0
 #      env: DATABASE="mysql" ORO_PLATFORM="2.0.20"
 #    - php: 7.1
-#      env: DATABASE="postgres" ORO_PLATFORM="2.6.1"
+#      env: DATABASE="postgresql" ORO_PLATFORM="2.6.1"
 
 before_install:
     - ./tests/run.sh before_install
