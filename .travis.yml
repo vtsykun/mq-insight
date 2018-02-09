@@ -1,0 +1,46 @@
+language: php
+
+sudo: false
+
+cache:
+  directories:
+    - .autoconf
+    - $HOME/.composer
+
+branches:
+  only:
+    - master
+    - 1.0
+
+addons:
+  postgresql: "9.5"
+
+services:
+  - mysql
+  - postgresql
+
+matrix:
+  include:
+    - php: 7.1
+      env: DATABASE="postgresql" ORO_PLATFORM="2.3.12"
+    - php: 7.0
+      env: DATABASE="mysql" ORO_PLATFORM="2.5.0"
+    - php: 7.1
+      env: DATABASE="postgresql" ORO_PLATFORM="2.6.1"
+
+before_install:
+    - phpenv config-rm xdebug.ini || echo "xdebug not available"
+    - composer
+    - bash tests/run.sh before_install
+
+install:
+    - bash tests/run.sh install
+
+before_script:
+    - bash tests/run.sh before_script
+
+script:
+    - cp tests/phpunit.xml.dist tests/platform/phpunit.xml
+    - cd tests/platform
+    - export SYMFONY_DEPRECATIONS_HELPER=disabled
+    - php bin/phpunit --testsuite=functional

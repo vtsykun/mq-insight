@@ -1,0 +1,18 @@
+services:
+    okvpn.null.topic1:
+        class: Okvpn\Bundle\MQInsightBundle\Tests\Functional\WaitTestMessageProcessor
+        arguments: [10]
+        tags:
+            - { name: 'oro_message_queue.client.message_processor', topicName: 'okvpn.null.topic1' }
+
+    okvpn.null.topic2:
+        class: Okvpn\Bundle\MQInsightBundle\Tests\Functional\WaitTestMessageProcessor
+        arguments: [20]
+        tags:
+            - { name: 'oro_message_queue.client.message_processor', topicName: 'okvpn.null.topic2' }
+
+    okvpn.null.topic3:
+        class: Okvpn\Bundle\MQInsightBundle\Tests\Functional\WaitTestMessageProcessor
+        arguments: [50]
+        tags:
+            - { name: 'oro_message_queue.client.message_processor', topicName: 'topic_okvpn.null.topic3' }
