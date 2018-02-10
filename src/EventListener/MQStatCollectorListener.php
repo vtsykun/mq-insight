@@ -55,8 +55,8 @@ class MQStatCollectorListener
                 ]
             );
         } catch (\Exception $e) {
-            throw $e;
             // do nothing
+            // for example connection is close
         }
 
         $this->debugProducer->clear();

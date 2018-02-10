@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Types\Type;
 use Okvpn\Bundle\MQInsightBundle\Exception\TerminateCommandException;
 use Okvpn\Bundle\MQInsightBundle\Manager\ProcessManager;
-use Okvpn\Bundle\MQInsightBundle\Model\AppConfig;
 use Okvpn\Bundle\MQInsightBundle\Model\Provider\QueueProviderInterface;
 use Okvpn\Bundle\MQInsightBundle\Model\Worker\CallbackTask;
 use Okvpn\Bundle\MQInsightBundle\Model\Worker\DelayPool;
@@ -48,8 +47,17 @@ class StatRetrieveCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this->setName(self::NAME)
-            ->addArgument('application', InputArgument::REQUIRED)
-            ->addArgument('parentPid', InputArgument::REQUIRED)
+            ->addArgument('application',
+                InputArgument::OPTIONAL,
+                '(INTERNAL). Any integer unique identifier, used to prevent simultaneous startup.'
+            )
+            ->addArgument(
+                'parentPid',
+                InputArgument::OPTIONAL,
+                '(INTERNAL). The parent process pid that run this command on background, used to stop process'
+                . ' when the parent process has died, but child doesn\'t get killed by proc_terminate'
+                // see bug https://bugs.php.net/bug.php?id=39992
+            )
             ->addOption('pollingInterval', null, InputOption::VALUE_OPTIONAL, 'The polling interval in sec.')
             ->setDescription('Retrieve message count statistics');
     }
@@ -61,7 +69,7 @@ class StatRetrieveCommand extends ContainerAwareCommand
     {
         $this->connection = $this->getContainer()->get('doctrine.orm.default_entity_manager')->getConnection();
         $this->queueProvider = $this->getContainer()->get('okvpn_mq_insight.queue_provider');
-        $this->parentPid = (int) $input->getArgument('parentPid');
+        $this->parentPid = $input->getArgument('parentPid') ? (int) $input->getArgument('parentPid') : null;
         $this->messagesProvider = $this->getContainer()->get('okvpn_mq_insight.queued_messages_provider');
 
         $this->delayPool = new DelayPool();
@@ -92,7 +100,8 @@ class StatRetrieveCommand extends ContainerAwareCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $shmid = function_exists('sem_get') ? sem_get(AppConfig::getApplicationID()) : null;
+        $applicationId = $input->getArgument('application');
+        $shmid = function_exists('sem_get') && $applicationId ? sem_get($applicationId) : null;
         if ($shmid && !sem_acquire($shmid, true)) {
             $output->writeln('<info>Not allowed to run a more one command.</info>');
             return 0;
@@ -141,7 +150,7 @@ class StatRetrieveCommand extends ContainerAwareCommand
     protected function terminateIfNeeded()
     {
         $message = '';
-        if (ProcessManager::getProcessNameByPid($this->parentPid) === '') {
+        if ($this->parentPid && ProcessManager::getProcessNameByPid($this->parentPid) === '') {
             $message = "The parent process died. Parent pid not found: {$this->parentPid}\n";
         }
 
