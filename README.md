@@ -25,11 +25,11 @@ Supported 2.3.* - 2.6.* ORO Platform versions on mysql or postgresql DB. You can
 * Delete invalid message from queue
 * Support dbal and amqp driver
 
-[![1 img](src/Resources/docs/1.png)]
+[![[1 img](src/Resources/docs/1.png)](src/Resources/docs/1.png)
 
-[![2 img](src/Resources/docs/2.png)]
+[![[2 img](src/Resources/docs/2.png)](src/Resources/docs/2.png)
 
-[![3 img](src/Resources/docs/2.png)]
+[![[3 img](src/Resources/docs/3.png)](src/Resources/docs/3.png)
 
 ## Demo
 See our [Administration Demo](http://demo.oroinc.me/insight/queue-status/). The credentials are prefilled, just click Log in
