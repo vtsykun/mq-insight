@@ -2,7 +2,7 @@
 
 This bundle provide UI to monitor status and collect statistics of message queue for OroPlatform
 
-[![Build Status](https://travis-ci.org/vtsykun/mq-insight.svg?branch=master)](https://travis-ci.org/vtsykun/mq-insight)[![Latest Stable Version](https://poser.pugx.org/okvpn/mq-insight/version)](https://packagist.org/packages/okvpn/mq-insight) [![Latest Unstable Version](https://poser.pugx.org/okvpn/mq-insight/v/unstable)](//packagist.org/packages/okvpn/mq-insight) [![Total Downloads](https://poser.pugx.org/okvpn/mq-insight/downloads)](https://packagist.org/packages/okvpn/mq-insight) [![License](https://poser.pugx.org/okvpn/mq-insight/license)](https://packagist.org/packages/okvpn/mq-insight)
+[![Build Status](https://travis-ci.org/vtsykun/mq-insight.svg?branch=master)](https://travis-ci.org/vtsykun/mq-insight) [![Latest Stable Version](https://poser.pugx.org/okvpn/mq-insight/version)](https://packagist.org/packages/okvpn/mq-insight) [![Latest Unstable Version](https://poser.pugx.org/okvpn/mq-insight/v/unstable)](//packagist.org/packages/okvpn/mq-insight) [![Total Downloads](https://poser.pugx.org/okvpn/mq-insight/downloads)](https://packagist.org/packages/okvpn/mq-insight) [![License](https://poser.pugx.org/okvpn/mq-insight/license)](https://packagist.org/packages/okvpn/mq-insight)
 
 ## Install
 
@@ -25,11 +25,11 @@ Supported 2.3.* - 2.6.* ORO Platform versions on mysql or postgresql DB. You can
 * Delete invalid message from queue
 * Support dbal and amqp driver
 
-[![[1 img](src/Resources/docs/1.png)](src/Resources/docs/1.png)
+[![1 img](src/Resources/docs/1.png)](src/Resources/docs/1.png)
 
-[![[2 img](src/Resources/docs/2.png)](src/Resources/docs/2.png)
+[![2 img](src/Resources/docs/2.png)](src/Resources/docs/2.png)
 
-[![[3 img](src/Resources/docs/3.png)](src/Resources/docs/3.png)
+[![3 img](src/Resources/docs/3.png)](src/Resources/docs/3.png)
 
 ## Demo
 See our [Administration Demo](http://demo.oroinc.me/insight/queue-status/). The credentials are prefilled, just click Log in
