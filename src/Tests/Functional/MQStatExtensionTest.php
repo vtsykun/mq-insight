@@ -36,6 +36,12 @@ class MQStatExtensionTest extends WebTestCase
         $this->initClient();
         $container = self::getContainer();
 
+        if ($container->hasParameter('message_queue_transport') &&
+            $container->getParameter('message_queue_transport') === 'null'
+        ) {
+            $this->markTestSkipped('The null message queue transport is not allow for tests');
+        }
+
         $consumer = $container->get('oro_message_queue.client.queue_consumer');
         $registry = $container->get('oro_message_queue.client.meta.destination_meta_registry');
         foreach ($registry->getDestinationsMeta() as $destinationMeta) {
