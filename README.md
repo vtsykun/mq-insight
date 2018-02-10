@@ -15,7 +15,7 @@ composer require okvpn/mq-insight
 
 ## Compatible ORO Platform versions
 
-Supported 2.3.* - 2.6.* ORO Platform versions on mysql or postgresql DB. You can see more detailed information from test [matrix](https://travis-ci.org/vtsykun/mq-insight.svg?branch=master)
+Supported 2.3.* - 2.6.* ORO Platform versions on mysql or postgresql DB. You can see more detailed information from test [matrix](https://travis-ci.org/vtsykun/mq-insight)
 
 ## Feature
 
