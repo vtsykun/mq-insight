@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * MQChangeStat
  *
  * @ORM\Table(name="okvpn_mq_change_stat")
- * @ORM\Entity(repositoryClass="Okvpn\Bundle\MQInsightBundle\Entity\Repository\MQChangeStatRepository")
+ * @ORM\Entity()
  */
 class MQChangeStat
 {
