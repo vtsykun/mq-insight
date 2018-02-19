@@ -2,7 +2,7 @@
 
 This bundle provide UI to monitor status and collect statistics of message queue for OroPlatform
 
-[![Build Status](https://travis-ci.org/vtsykun/mq-insight.svg?branch=master)](https://travis-ci.org/vtsykun/mq-insight) [![Latest Stable Version](https://poser.pugx.org/okvpn/mq-insight/version)](https://packagist.org/packages/okvpn/mq-insight) [![Latest Unstable Version](https://poser.pugx.org/okvpn/mq-insight/v/unstable)](//packagist.org/packages/okvpn/mq-insight) [![Total Downloads](https://poser.pugx.org/okvpn/mq-insight/downloads)](https://packagist.org/packages/okvpn/mq-insight) [![License](https://poser.pugx.org/okvpn/mq-insight/license)](https://packagist.org/packages/okvpn/mq-insight)
+[![Build Status](https://travis-ci.org/vtsykun/mq-insight.svg?branch=master)](https://travis-ci.org/vtsykun/mq-insight) [![Latest Stable Version](https://poser.okvpn.org/okvpn/mq-insight/version)](https://packagist.org/packages/okvpn/mq-insight) [![Latest Unstable Version](https://poser.okvpn.org/okvpn/mq-insight/v/unstable)](//packagist.org/packages/okvpn/mq-insight) [![Total Downloads](https://poser.okvpn.org/okvpn/mq-insight/downloads)](https://packagist.org/packages/okvpn/mq-insight) [![License](https://poser.okvpn.org/okvpn/mq-insight/license)](https://packagist.org/packages/okvpn/mq-insight)
 
 ## Install
 
