@@ -16,6 +16,8 @@ use Oro\Component\MessageQueue\Client\Config;
 use Oro\Component\MessageQueue\Consumption\AbstractExtension;
 use Oro\Component\MessageQueue\Consumption\Context;
 use Oro\Component\MessageQueue\Consumption\MessageProcessorInterface;
+use Oro\Component\MessageQueue\Transport\Dbal\DbalMessage;
+use Oro\Component\MessageQueue\Transport\MessageInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
@@ -110,7 +112,8 @@ class MQStatExtension extends AbstractExtension
             $this->processRecord(
                 $messageInfo->getMarker($message),
                 $context->getStatus(),
-                microtime(true) - $this->start
+                microtime(true) - $this->start,
+                $this->guessesMessagePriority($message)
             );
         }
 
@@ -149,7 +152,8 @@ class MQStatExtension extends AbstractExtension
                 $message = $context->getMessage();
                 $name = $message ? $message->getProperty(Config::PARAMETER_PROCESSOR_NAME) : null;
                 $uid = $message ? $message->getMessageId() : null;
-                $this->publishErrorStat($context->getException(), $name, $uid);
+                $redeliverCount = $message ? $message->getProperty('oro-redeliver-count') : null;
+                $this->publishErrorStat($context->getException(), $name, $uid, $redeliverCount);
             }
 
             $provider = $this->container->get('okvpn_mq_insight.queued_messages_provider');
@@ -186,8 +190,9 @@ class MQStatExtension extends AbstractExtension
      * @param string $name
      * @param string $status
      * @param float $long
+     * @param int $priority
      */
-    protected function processRecord($name, $status, $long)
+    protected function processRecord($name, $status, $long, $priority = null)
     {
         if (!array_key_exists($name, $this->stats)) {
             $this->stats[$name] = [
@@ -197,6 +202,7 @@ class MQStatExtension extends AbstractExtension
                 'avg_time' => $long,
                 'min_time' => $long,
                 'max_time' => $long,
+                'priority' => $priority
             ];
         }
 
@@ -237,6 +243,7 @@ class MQStatExtension extends AbstractExtension
                 'ack' => Type::INTEGER,
                 'reject' => Type::INTEGER,
                 'requeue' => Type::INTEGER,
+                'priority' => Type::INTEGER
             ]);
         }
 
@@ -266,13 +273,34 @@ class MQStatExtension extends AbstractExtension
         $this->getDebugProducer()->clear();
     }
 
-    protected function publishErrorStat(\Exception $e, $processorName = null, $messageId = null)
+    protected function publishErrorStat(\Exception $e, $processorName = null, $messageId = null, $redeliverCount = null)
     {
         $conn = $this->getEntityManager()->getConnection();
         $log = sprintf(
             "[%s] %s in %s:%s.\nTrace:\n%s",
             get_class($e), $e->getMessage(), $e->getFile(), $e->getLine(), $e->getTraceAsString()
         );
+
+        if ($messageId && $redeliverCount) {
+            $row = $conn->executeQuery(
+                'select id from okvpn_mq_error_stat where message_id = :messageId order by id desc limit 1',
+                [
+                    'messageId' => $messageId
+                ]
+            )->fetch();
+
+            if ($row && isset($row['id'])) {
+                $conn->update(
+                    'okvpn_mq_error_stat',
+                    [
+                        'redeliver_count' => $redeliverCount
+                    ],
+                    ['id' => $row['id']]
+                );
+
+                return;
+            }
+        }
 
         $conn->insert(
             'okvpn_mq_error_stat',
@@ -334,5 +362,30 @@ class MQStatExtension extends AbstractExtension
     protected function getDebugProducer()
     {
         return $this->container->get('okvpn_mq_insight.debug_message_producer');
+    }
+
+    /**
+     * @param MessageInterface $message
+     * @return int|null
+     */
+    protected function guessesMessagePriority(MessageInterface $message)
+    {
+        switch (true) {
+            case $message instanceof DbalMessage:
+                $priority = $message->getPriority();
+                break;
+            case $message->getHeader('priority') !== null:
+                $priority = $message->getHeader('priority');
+                break;
+            default:
+                $priority = null;
+                break;
+        }
+
+        if (is_numeric($priority)) {
+            return (int) $priority;
+        }
+
+        return null;
     }
 }

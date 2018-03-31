@@ -14,7 +14,7 @@ class OkvpnMQInsightBundleInstaller implements Installation
      */
     public function getMigrationVersion()
     {
-        return 'v1_0';
+        return 'v1_1';
     }
 
     /**
@@ -38,6 +38,7 @@ class OkvpnMQInsightBundleInstaller implements Installation
         $table->addColumn('ack', Type::INTEGER);
         $table->addColumn('reject', Type::INTEGER);
         $table->addColumn('requeue', Type::INTEGER);
+        $table->addColumn('priority', Type::INTEGER, ['notnull' => false]);
         $table->setPrimaryKey(['id']);
 
         $table = $schema->createTable('okvpn_mq_change_stat');
@@ -53,7 +54,9 @@ class OkvpnMQInsightBundleInstaller implements Installation
         $table->addColumn('created', Type::DATETIME);
         $table->addColumn('processor_name', Type::STRING, ['notnull' => false, 'length' => 255]);
         $table->addColumn('message_id', Type::STRING, ['notnull' => false, 'length' => 255]);
+        $table->addColumn('redeliver_count', Type::INTEGER, ['notnull' => false]);
         $table->addColumn('log', Type::TEXT, ['notnull' => false, 'length' => 255]);
         $table->setPrimaryKey(['id']);
+        $table->addIndex(['message_id']);
     }
 }

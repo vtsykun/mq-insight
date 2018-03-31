@@ -4,9 +4,6 @@ namespace Okvpn\Bundle\MQInsightBundle\Manager;
 
 use Symfony\Component\Process\Process;
 
-/**
- * @internal
- */
 class ProcessManager
 {
     /**

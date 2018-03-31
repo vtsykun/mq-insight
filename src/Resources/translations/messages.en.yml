@@ -16,6 +16,10 @@ okvpn:
         total_time.label: Total
         view_message_queue.label: View message queue statistics
         view_message_queue.description: Allow view message queue statistics and logs.
+        priority.label: Priority
+        quantity.label: Quantity
+        redeliver_count.label: Redelivery count
+        last_ping: Last ping
         menu_config:
             title: Message queue statistics
             label: Message queue
@@ -26,3 +30,4 @@ okvpn:
             running: Running
             stopped: Stopped
             pie_chart: An estimation of spent time distribution amongst the processors
+            message: Message priority

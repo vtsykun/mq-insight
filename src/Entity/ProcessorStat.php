@@ -77,6 +77,12 @@ class ProcessorStat
      */
     private $requeue;
 
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="priority", type="integer", nullable=true)
+     */
+    private $priority;
 
     /**
      * Get id
@@ -278,5 +284,23 @@ class ProcessorStat
     public function getRequeue()
     {
         return $this->requeue;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPriority()
+    {
+        return $this->priority;
+    }
+
+    /**
+     * @param int $priority
+     * @return ProcessorStat
+     */
+    public function setPriority($priority)
+    {
+        $this->priority = $priority;
+        return $this;
     }
 }
