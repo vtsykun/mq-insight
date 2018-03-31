@@ -43,12 +43,18 @@ class MQErrorStat
     private $message;
 
     /**
+     * @var integer
+     *
+     * @ORM\Column(name="redeliver_count", type="integer", nullable=true)
+     */
+    private $redeliverCount = 0;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="log", type="text", nullable=true)
      */
     private $log;
-
 
     /**
      * Get id
@@ -154,5 +160,23 @@ class MQErrorStat
     public function getLog()
     {
         return $this->log;
+    }
+
+    /**
+     * @return int
+     */
+    public function getRedeliverCount()
+    {
+        return $this->redeliverCount;
+    }
+
+    /**
+     * @param int $redeliverCount
+     * @return MQErrorStat
+     */
+    public function setRedeliverCount($redeliverCount)
+    {
+        $this->redeliverCount = $redeliverCount;
+        return $this;
     }
 }

@@ -57,6 +57,10 @@
         {{ dataGrid.renderGrid('message-queue-error-grid') }}
     {% endset %}
 
+    {% set messageStat %}
+        {{ dataGrid.renderGrid('message-queue-stat-grid') }}
+    {% endset %}
+
     {% set gridProcessor %}
         <b>{{ 'okvpn.mqinsight.view.grid_by_processor_label'|trans }}</b>
         {{ dataGrid.renderGrid('message-queue-processor-grid', {created: fetchFrom}) }}
@@ -105,6 +109,17 @@
             {
                 'spanClass': 'empty activities-container',
                 'data': [gridErrors]
+            }
+        ]
+    }]) %}
+
+    {% set dataBlocks = dataBlocks|merge([{
+        'title': 'okvpn.mqinsight.view.message'|trans,
+        'priority' : 140,
+        'subblocks': [
+            {
+                'spanClass': 'empty activities-container',
+                'data': [messageStat]
             }
         ]
     }]) %}
