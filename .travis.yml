@@ -10,10 +10,10 @@ cache:
 branches:
   only:
     - master
-    - 1.0
+    - 1.1
 
 addons:
-  postgresql: "9.5"
+  postgresql: "9.6"
 
 services:
   - mysql
@@ -21,12 +21,12 @@ services:
 
 matrix:
   include:
-    - php: 7.1
-      env: DATABASE="postgresql" ORO_PLATFORM="2.3.12"
     - php: 7.0
-      env: DATABASE="mysql" ORO_PLATFORM="2.5.0"
+      env: DATABASE="postgresql" ORO_PLATFORM="2.3.12"
     - php: 7.1
-      env: DATABASE="postgresql" ORO_PLATFORM="2.6.1"
+      env: DATABASE="mysql" ORO_PLATFORM="2.6.1"
+    - php: 7.1
+      env: DATABASE="postgresql" ORO_PLATFORM="3.0.0-beta"
 
 before_install:
     - phpenv config-rm xdebug.ini || echo "xdebug not available"
