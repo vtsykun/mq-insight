@@ -1,11 +1,36 @@
 {% import 'OroUIBundle::macros.html.twig' as ui %}
 
 <div class="widget-content">
-    <div class="row-fluid form-horizontal contact-info">
-        <div
-                data-page-component-module="okvpnmqinsight/queued-view"
-        >
+    <div data-page-component-module="okvpnmqinsight/queued-view">
+        <a class="action btn mq-configure" style="padding: 0px 5px;">
+            <i class="fa-cog"></i>
+        </a>
+        <div class="modal fade mq-modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">{{ 'okvpn.mqinsight.view.configure'|trans }}</h4>
+                    </div>
 
+                    <div class="modal-body" style="min-height: 120px">
+                        <div class="control-group control-group-text">
+                            <div class="control-label wrap"><label>{{ 'okvpn.mqinsight.view.refresh_interval'|trans }}</label></div>
+                            <div class="controls">
+                                <input type="text" class="mq-refresh-interval">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">{{ 'okvpn.mqinsight.view.cancel'|trans }}</button>
+                        <button type="button" class="btn mq-configure-btn btn-primary">{{ 'okvpn.mqinsight.view.save'|trans }}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row-fluid form-horizontal contact-info">
             <div class="mq-widget" style="padding: 10px; font-size: 1.3em; float: right"></div>
             <div class="mq-queued"></div>
         </div>

@@ -31,3 +31,7 @@ okvpn:
             stopped: Stopped
             pie_chart: An estimation of spent time distribution amongst the processors
             message: Message priority
+            cancel: Cancel
+            save: Save changes
+            refresh_interval: Refresh interval (sec.)
+            configure: Widget Settings
