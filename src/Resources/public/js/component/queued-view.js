@@ -15,7 +15,6 @@ define(function(require) {
         options: {
             el: '.mq-queued',
             widget: 'div.mq-widget'
-
         },
 
         /**

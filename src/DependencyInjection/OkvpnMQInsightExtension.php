@@ -34,6 +34,9 @@ class OkvpnMQInsightExtension extends Extension
             $container->setAlias('okvpn_mq_insight.storage', 'okvpn_mq_insight.storage.file_system');
         }
 
+        $container->setParameter('okvpn_mq_insight.skip_stat_retrieve', $config['disable_demand_profiling']);
+        $container->setParameter('okvpn_mq_insight.options', $config);
+
         $env = $container->getParameter('kernel.environment');
         if ($env === 'test') {
             $loader->load('tests.yml');

@@ -19,10 +19,23 @@ class Configuration implements ConfigurationInterface
     {
         $treeBuilder = new TreeBuilder();
         $rootNode = $treeBuilder->root('okvpn_mq_insight');
-
-        // Here you should define the parameters that are allowed to
-        // configure your bundle. See the documentation linked above for
-        // more information on that topic.
+        $rootNode
+            ->children()
+                ->booleanNode('disable_demand_profiling')
+                    ->info('Disable profiling on demand (run the command "okvpn:stat:retrieve" on background)')
+                    ->defaultFalse()
+                ->end()
+                ->scalarNode('clear_stat_interval')
+                    ->info('Clear data interval from okvpn_mq_processor_stat table')
+                    ->example('-10 days')
+                    ->defaultValue('-5 days')
+                ->end()
+                ->scalarNode('clear_error_interval')
+                    ->info('Clear data interval from okvpn_mq_error_stat table')
+                    ->example('-60 days')
+                    ->defaultValue('-30 days')
+                ->end()
+            ->end();
 
         return $treeBuilder;
     }

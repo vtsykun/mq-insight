@@ -31,6 +31,23 @@ Supported 2.3.* - 2.6.* ORO Platform versions on mysql or postgresql DB. You can
 
 [![3 img](src/Resources/docs/3.png)](src/Resources/docs/3.png)
 
+## Message queue insight options
+
+Example of configuration options
+```
+# app/config.yml
+
+okvpn_mq_insight:
+    # Disable profiling on demand (run the command "okvpn:stat:retrieve" on background)
+    disable_demand_profiling: false
+    
+    # Clear data interval from okvpn_mq_processor_stat table
+    clear_stat_interval: '-5 days'
+    
+    # Clear data interval from okvpn_mq_error_stat table
+    clear_error_interval: '-30 days'
+```
+
 ## Demo
 See our [Administration Demo](http://demo.oroinc.me/insight/queue-status/). The credentials are prefilled, just click Log in
 

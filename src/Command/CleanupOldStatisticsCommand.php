@@ -103,11 +103,13 @@ class CleanupOldStatisticsCommand extends ContainerAwareCommand implements CronC
 
     protected function getIntervalForDeletions()
     {
-        return '-5 days';
+        $options = $this->getContainer()->getParameter('okvpn_mq_insight.options');
+        return $options['clear_stat_interval'];
     }
 
     protected function getIntervalForDeletionsError()
     {
-        return '-30 days';
+        $options = $this->getContainer()->getParameter('okvpn_mq_insight.options');
+        return $options['clear_error_interval'];
     }
 }

@@ -1,5 +1,6 @@
 parameters:
     okvpn_mq_insight.skip_stat_retrieve: false
+    okvpn_mq_insight.options: []
 
 services:
     okvpn_mq_insight.provider_dbal:
