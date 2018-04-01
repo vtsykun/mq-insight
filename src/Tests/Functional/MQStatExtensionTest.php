@@ -54,6 +54,11 @@ class MQStatExtensionTest extends WebTestCase
         $extensions[] = new LoggerExtension(new NullLogger());
         $extensions[] = new StopConsumerTestExtension();
 
+        $conn = $this->getContainer()->get('doctrine.orm.default_entity_manager')->getConnection();
+        $conn->executeQuery('delete from oro_message_queue');
+        $conn->executeQuery('delete from oro_message_queue_job_unique');
+        $conn->executeQuery('delete from oro_message_queue_job');
+
         $this->consumer = $consumer;
         $this->extension = new ChainExtension($extensions);
     }
