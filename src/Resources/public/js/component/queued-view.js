@@ -7,6 +7,7 @@ define(function(require) {
     var BaseView = require('oroui/js/app/views/base/view');
     var routing = require('routing');
     var moment = require('moment');
+    var persistentStorage = require('oroui/js/persistent-storage');
     var d3 = require('d3');
     var c3 = require('c3');
 
@@ -14,7 +15,13 @@ define(function(require) {
         options: {
             el: '.mq-queued',
             widget: 'div.mq-widget'
+
         },
+
+        /**
+         * @property {Element}
+         */
+        sourceElement: null,
 
         /**
          * @property {Element}
@@ -26,32 +33,70 @@ define(function(require) {
          */
         chart: null,
 
+        /**
+         * @property {Object}
+         */
+        plotRefresh: null,
+
         initialize: function (options) {
-
-            this._el = options._sourceElement.find(this.options.widget);
+            QueuedView.__super__.initialize.apply(this, arguments);
+            this.sourceElement = options._sourceElement;
+            this._el = this.sourceElement.find(this.options.widget);
             this.initChart();
-            var plotRefresh = setInterval(
-                _.bind(function () {
-                    if (this.chart === null) {
-                        return null;
-                    }
 
-                    if ($(this.options.widget).length === 0) {
-                        clearInterval(plotRefresh);
-                    }
+            var refreshRate = persistentStorage.getItem('okvpn-mq-refresh-interval');
+            if (refreshRate === null) {
+                refreshRate = 10;
+            }
+            this.sourceElement.find('input.mq-refresh-interval').val(refreshRate);
 
-                    $.post(
-                        routing.generate('okvpn_mq_insight_queued'),
-                        { },
-                        _.bind(function (response) {
-                            var formatted = this._formatData(response.queued);
-                            this._updateWidget(response);
-                            this.chart.load({columns: formatted});
-                        }, this)
-                    )
-                }, this),
-                5000
-            );
+            this.plotRefresh = setInterval(_.bind(function () {this.refreshPlot();}, this), 1000 * refreshRate);
+            this.sourceElement.find('.mq-configure').on('click', _.bind(function () {
+                this.onConfigureClick();
+            }, this));
+
+            this.sourceElement.find('.mq-configure-btn').on('click', _.bind(function () {
+                this.onConfigureSave();
+            }, this));
+        },
+
+        refreshPlot: function () {
+            if (this.chart === null) {
+                return null;
+            }
+
+            if ($(this.options.widget).length === 0) {
+                clearInterval(this.plotRefresh);
+            }
+
+            $.post(
+                routing.generate('okvpn_mq_insight_queued'),
+                { },
+                _.bind(function (response) {
+                    var formatted = this._formatData(response.queued);
+                    this._updateWidget(response);
+                    this.chart.load({columns: formatted});
+                }, this)
+            )
+        },
+
+        onConfigureClick: function () {
+            this.sourceElement.find('.mq-modal').modal('show');
+        },
+
+        onConfigureSave: function () {
+            this.sourceElement.find('.mq-modal').modal('hide');
+            var refreshRate = this.sourceElement.find('input.mq-refresh-interval').val();
+            refreshRate = parseInt(refreshRate);
+            persistentStorage.setItem('okvpn-mq-refresh-interval', refreshRate);
+            if (this.plotRefresh !== null) {
+                clearInterval(this.plotRefresh);
+                this.plotRefresh = null;
+            }
+
+            if (refreshRate > 1) {
+                this.plotRefresh = setInterval(_.bind(function () {this.refreshPlot();}, this), 1000 * refreshRate);
+            }
         },
 
         initChart: function () {
