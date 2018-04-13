@@ -35,7 +35,7 @@ Supported 2.3.* - 2.6.* ORO Platform versions on mysql or postgresql DB. You can
 
 Example of configuration options
 ```
-# app/config.yml
+# app/config/config.yml
 
 okvpn_mq_insight:
     # Disable profiling on demand (run the command "okvpn:stat:retrieve" on background)
