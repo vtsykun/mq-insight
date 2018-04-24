@@ -19,6 +19,7 @@ use Oro\Component\MessageQueue\Consumption\MessageProcessorInterface;
 use Oro\Component\MessageQueue\Transport\Dbal\DbalMessage;
 use Oro\Component\MessageQueue\Transport\MessageInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Process\Exception\RuntimeException;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\ProcessBuilder;
@@ -321,30 +322,40 @@ class MQStatExtension extends AbstractExtension
 
     protected function runStatRetrieveCommandIfNeeded()
     {
-        if (!getenv('SKIP_STAT_RETRIEVE')
-            && !$this->container->getParameter('okvpn_mq_insight.skip_stat_retrieve')
-            && !ProcessManager::isProcessRunning(sprintf("'%s'", StatRetrieveCommand::NAME . ' ' . AppConfig::getApplicationID()))
-        ) {
-            $env = $this->container->get('kernel')->getEnvironment();
-            $pb = new ProcessBuilder();
+        try {
+            if (!getenv('SKIP_STAT_RETRIEVE')
+                && !$this->container->getParameter('okvpn_mq_insight.skip_stat_retrieve')
+                && !ProcessManager::isProcessRunning(sprintf("'%s'", StatRetrieveCommand::NAME . ' ' . AppConfig::getApplicationID()))
+            ) {
+                $env = $this->container->get('kernel')->getEnvironment();
+                $pb = new ProcessBuilder();
 
-            $phpFinder = new PhpExecutableFinder();
-            $phpPath   = $phpFinder->find();
-            $pb
-                ->add($phpPath)
-                ->add($_SERVER['argv'][0])
-                ->add(StatRetrieveCommand::NAME)
-                ->add(AppConfig::getApplicationID())
-                ->add(getmypid())
-                ->add("--env=$env");
+                $phpFinder = new PhpExecutableFinder();
+                $phpPath   = $phpFinder->find();
+                $pb
+                    ->add($phpPath)
+                    ->add($_SERVER['argv'][0])
+                    ->add(StatRetrieveCommand::NAME)
+                    ->add(AppConfig::getApplicationID())
+                    ->add(getmypid())
+                    ->add("--env=$env");
 
-            $process = $pb
-                ->setTimeout(3600)
-                ->inheritEnvironmentVariables(true)
-                ->getProcess();
+                $process = $pb
+                    ->setTimeout(3600)
+                    ->inheritEnvironmentVariables(true)
+                    ->getProcess();
 
-            $process->start();
-            $this->process = $process;
+                $process->start();
+                $this->process = $process;
+            }
+        } catch (RuntimeException $exception) {
+            //The process has been signaled with signal "2"
+            //Ctrl-C signal forwarded to children process, so ignore it.
+            try {
+                if ($this->process) {
+                    $this->process->stop();
+                }
+            } catch (\Exception $e) {}
         }
     }
 
