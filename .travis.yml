@@ -24,7 +24,7 @@ matrix:
     - php: 7.0
       env: DATABASE="postgresql" ORO_PLATFORM="2.3.12"
     - php: 7.1
-      env: DATABASE="mysql" ORO_PLATFORM="2.6.1"
+      env: DATABASE="mysql" ORO_PLATFORM="2.6.12"
     - php: 7.1
       env: DATABASE="postgresql" ORO_PLATFORM="3.0.0-beta"
 
