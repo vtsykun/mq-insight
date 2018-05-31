@@ -10,7 +10,6 @@ cache:
 branches:
   only:
     - master
-    - 1.1
 
 addons:
   postgresql: "9.6"
@@ -21,12 +20,14 @@ services:
 
 matrix:
   include:
-    - php: 7.0
+    - php: 7.1
       env: DATABASE="postgresql" ORO_PLATFORM="2.3.12"
     - php: 7.1
-      env: DATABASE="mysql" ORO_PLATFORM="2.6.12"
+      env: DATABASE="postgresql" ORO_PLATFORM="2.6.13"
     - php: 7.1
-      env: DATABASE="postgresql" ORO_PLATFORM="3.0.0-beta"
+      env: DATABASE="mysql" ORO_PLATFORM="2.6.13"
+    - php: 7.1.17
+      env: DATABASE="postgresql" ORO_PLATFORM="3.0.0-rc"
 
 before_install:
     - phpenv config-rm xdebug.ini || echo "xdebug not available"
@@ -40,7 +41,12 @@ before_script:
     - bash tests/run.sh before_script
 
 script:
-    - cp tests/phpunit.xml.dist tests/platform/phpunit.xml
+    - |
+      if [ -f tests/platform/app/console ]; then
+          cp tests/phpunit.xml.legacy tests/platform/phpunit.xml
+      else
+          cp tests/phpunit.xml.dist tests/platform/phpunit.xml
+      fi
     - cd tests/platform
-    - export SYMFONY_DEPRECATIONS_HELPER=disabled
+    - cat phpunit.xml
     - php bin/phpunit --testsuite=functional
