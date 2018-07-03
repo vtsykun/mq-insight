@@ -11,7 +11,9 @@ This bundle provide UI to monitor status and collect statistics of message queue
 composer require okvpn/mq-insight
 ```
 
-2. Run oro platform update `oro:platform:update`
+2. Delete your cache `rm -rf app/cache/{dev,prod,test}/`
+
+3. Run oro platform update `oro:platform:update`
 
 ## Compatible ORO Platform versions
 
