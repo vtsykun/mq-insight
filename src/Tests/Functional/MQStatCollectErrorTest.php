@@ -21,14 +21,6 @@ class MQStatCollectErrorTest extends WebTestCase
     /**
      * {@inheritdoc}
      */
-    public static function setUpBeforeClass()
-    {
-        putenv('SKIP_STAT_RETRIEVE=true');
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     protected function setUp()
     {
         $this->initClient([], array_merge($this->generateBasicAuthHeader(), ['HTTP_X-CSRF-Header' => 1]));
