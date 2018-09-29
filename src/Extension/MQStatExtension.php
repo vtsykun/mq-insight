@@ -5,9 +5,6 @@ namespace Okvpn\Bundle\MQInsightBundle\Extension;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManagerInterface;
 use Okvpn\Bundle\MQInsightBundle\Client\DebugProducerInterface;
-use Okvpn\Bundle\MQInsightBundle\Command\StatRetrieveCommand;
-use Okvpn\Bundle\MQInsightBundle\Manager\ProcessManager;
-use Okvpn\Bundle\MQInsightBundle\Model\AppConfig;
 use Okvpn\Bundle\MQInsightBundle\Model\Counter;
 use Okvpn\Bundle\MQInsightBundle\Model\Worker\CallbackTask;
 use Okvpn\Bundle\MQInsightBundle\Model\Worker\DelayPool;
@@ -19,10 +16,7 @@ use Oro\Component\MessageQueue\Consumption\MessageProcessorInterface;
 use Oro\Component\MessageQueue\Transport\Dbal\DbalMessage;
 use Oro\Component\MessageQueue\Transport\MessageInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\Process\Exception\RuntimeException;
-use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
-use Symfony\Component\Process\ProcessBuilder;
 
 class MQStatExtension extends AbstractExtension
 {
@@ -69,11 +63,6 @@ class MQStatExtension extends AbstractExtension
         $this->delayPool->submit(
             new CallbackTask(function () {$this->publishCountStat();}),
             static::POLLING_INTERVAL
-        );
-
-        $this->delayPool->submit(
-            new CallbackTask(function () {$this->runStatRetrieveCommandIfNeeded();}),
-            2 * QueuedMessagesProvider::POLLING_TIME
         );
 
         $this->delayPool->submit(
@@ -318,45 +307,6 @@ class MQStatExtension extends AbstractExtension
                 'log' => Type::TEXT,
             ]
         );
-    }
-
-    protected function runStatRetrieveCommandIfNeeded()
-    {
-        try {
-            if (!getenv('SKIP_STAT_RETRIEVE')
-                && !$this->container->getParameter('okvpn_mq_insight.skip_stat_retrieve')
-                && !ProcessManager::isProcessRunning(sprintf("'%s'", StatRetrieveCommand::NAME . ' ' . AppConfig::getApplicationID()))
-            ) {
-                $env = $this->container->get('kernel')->getEnvironment();
-                $pb = new ProcessBuilder();
-
-                $phpFinder = new PhpExecutableFinder();
-                $phpPath   = $phpFinder->find();
-                $pb
-                    ->add($phpPath)
-                    ->add($_SERVER['argv'][0])
-                    ->add(StatRetrieveCommand::NAME)
-                    ->add(AppConfig::getApplicationID())
-                    ->add(getmypid())
-                    ->add("--env=$env");
-
-                $process = $pb
-                    ->setTimeout(3600)
-                    ->inheritEnvironmentVariables(true)
-                    ->getProcess();
-
-                $process->start();
-                $this->process = $process;
-            }
-        } catch (RuntimeException $exception) {
-            //The process has been signaled with signal "2"
-            //Ctrl-C signal forwarded to children process, so ignore it.
-            try {
-                if ($this->process) {
-                    $this->process->stop();
-                }
-            } catch (\Exception $e) {}
-        }
     }
 
     /**
