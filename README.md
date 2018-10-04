@@ -17,7 +17,7 @@ composer require okvpn/mq-insight
 
 ## Compatible ORO Platform versions
 
-Supported 2.3.* - 2.6.* ORO Platform versions on mysql or postgresql DB. You can see more detailed information from test [matrix](https://travis-ci.org/vtsykun/mq-insight)
+Supported 2.6.* - 3.1.* ORO Platform versions on mysql or postgresql DB. You can see more detailed information from test [matrix](https://travis-ci.org/vtsykun/mq-insight)
 
 ## Feature
 
@@ -49,9 +49,6 @@ okvpn_mq_insight:
     # Clear data interval from okvpn_mq_error_stat table
     clear_error_interval: '-30 days'
 ```
-
-## Demo
-See our [Administration Demo](http://demo.oroinc.me/insight/queue-status/). The credentials are prefilled, just click Log in
 
 ## Contributing
 
