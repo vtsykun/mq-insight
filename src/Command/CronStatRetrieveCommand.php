@@ -42,7 +42,15 @@ class CronStatRetrieveCommand extends ContainerAwareCommand implements
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         // For BC with Symfony 2.8
+        $maxAttempts = 10;
         $lock = new LockHandler('okvpn_mq_stat');
+        while ($maxAttempts--) {
+            if (true === $lock->lock()) {
+                break;
+            }
+            sleep(1);
+        }
+
         if (!$lock->lock()) {
             $output->writeln('Aborting, another of the same command is still active');
             return;
@@ -54,7 +62,7 @@ class CronStatRetrieveCommand extends ContainerAwareCommand implements
         sleep(5);
 
         try {
-            $lifetime = $input->getOption('lifetime') - 2 * QueuedMessagesProvider::POLLING_TIME;
+            $lifetime = $input->getOption('lifetime');
             $startTime = time();
             $delayPool = new DelayPool();
             $delayPool->setLogger(new ConsoleLogger($output));
@@ -70,7 +78,7 @@ class CronStatRetrieveCommand extends ContainerAwareCommand implements
                 'processCount'
             );
 
-            while (time() - $startTime < $lifetime) {
+            while (time() - $startTime <= $lifetime) {
                 $delayPool->sync();
                 sleep(1);
             }
