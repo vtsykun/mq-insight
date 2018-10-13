@@ -41,7 +41,14 @@ class CronStatRetrieveCommand extends ContainerAwareCommand implements
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        // For BC with Symfony 2.8
+        $startTime = time();
+
+        // Run with delay 5 sec. Usually after launching the cron message,
+        // the queue contains a few number of messages. A small delay will
+        // remove random noise from statistics.
+        sleep(5);
+
+        // For BC with Symfony 2.8 use LockHandler
         $maxAttempts = 10;
         $lock = new LockHandler('okvpn_mq_stat');
         while ($maxAttempts--) {
@@ -56,14 +63,8 @@ class CronStatRetrieveCommand extends ContainerAwareCommand implements
             return;
         }
 
-        // Run with delay 5 sec. Usually after launching the cron message,
-        // the queue contains a few number of messages. A small delay will
-        // remove random noise from statistics.
-        sleep(5);
-
         try {
             $lifetime = $input->getOption('lifetime');
-            $startTime = time();
             $delayPool = new DelayPool();
             $delayPool->setLogger(new ConsoleLogger($output));
             $delayPool->submit(
@@ -78,7 +79,7 @@ class CronStatRetrieveCommand extends ContainerAwareCommand implements
                 'processCount'
             );
 
-            while (time() - $startTime <= $lifetime) {
+            while (time() - $startTime <= $lifetime+5) {
                 $delayPool->sync();
                 sleep(1);
             }
