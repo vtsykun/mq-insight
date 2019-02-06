@@ -58,6 +58,11 @@ class CronStatRetrieveCommand extends ContainerAwareCommand implements
             sleep(1);
         }
 
+        // Adjust terminal width to fix getting unexpected result
+        // of "ps ax | grep oro:message-queue:consume | grep -v grep"
+        // if run this command via supervisor
+        putenv('COLUMNS=190');
+
         if (!$lock->lock()) {
             $output->writeln('Aborting, another of the same command is still active');
             return;
