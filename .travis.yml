@@ -22,8 +22,10 @@ matrix:
   include:
     - php: 7.1
       env: DATABASE="mysql" ORO_PLATFORM="2.6.39"
-    - php: 7.1.26
-      env: DATABASE="postgresql" ORO_PLATFORM="3.1.1"
+    - php: 7.2
+      env: DATABASE="postgresql" ORO_PLATFORM="3.1.15"
+    - php: 7.2
+      env: DATABASE="postgresql" ORO_PLATFORM="4.1.0-rc"
 
 before_install:
     - phpenv config-rm xdebug.ini || echo "xdebug not available"
