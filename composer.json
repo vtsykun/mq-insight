@@ -1,5 +1,5 @@
 {
-    "name":"okvpn/mq-insight",
+    "name":"okvpn-org/mq-insight",
     "type":"symfony-bundle",
     "homepage": "https://github.com/vtsykun/mq-insight",
     "license":"MIT",
